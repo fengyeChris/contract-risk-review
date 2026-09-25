@@ -141,13 +141,11 @@ def test_no_evidence_limits_confidence():
 # ---------- 测试：必备条款清单（§0.3）----------
 
 
-def test_required_clauses_are_the_four_from_scope():
-    """必备清单只含 01 争议解决、08 责任上限、09 赔偿、10 知识产权归属
-    ← 第 2 处空白补完后，这条应当通过"""
+def test_required_clauses_are_the_three_from_scope():
+    """必备清单只含 01 争议解决、08 责任上限、10 知识产权归属（§0.3 / §0.6）"""
     expected = {
         ClauseId.GOVERNING_LAW,
         ClauseId.CAP_ON_LIABILITY,
-        ClauseId.INDEMNIFICATION,
         ClauseId.IP_OWNERSHIP,
     }
     assert set(REQUIRED_CLAUSES) == expected

@@ -1,0 +1,150 @@
+{
+  "main_eval": {
+    "n_contracts": 198,
+    "by_clause": {
+      "01_governing_law": {
+        "positives": 173,
+        "negatives": 25,
+        "unlocatable": 0
+      },
+      "02_change_of_control": {
+        "positives": 49,
+        "negatives": 149,
+        "unlocatable": 0
+      },
+      "03_anti_assignment": {
+        "positives": 147,
+        "negatives": 51,
+        "unlocatable": 0
+      },
+      "04_non_compete": {
+        "positives": 46,
+        "negatives": 152,
+        "unlocatable": 0
+      },
+      "05_exclusivity": {
+        "positives": 68,
+        "negatives": 130,
+        "unlocatable": 0
+      },
+      "06_termination_notice": {
+        "positives": 79,
+        "negatives": 119,
+        "unlocatable": 0
+      },
+      "07_renewal": {
+        "positives": 70,
+        "negatives": 128,
+        "unlocatable": 0
+      },
+      "08_cap_on_liability": {
+        "positives": 106,
+        "negatives": 92,
+        "unlocatable": 0
+      },
+      "09_liquidated_damages": {
+        "positives": 21,
+        "negatives": 177,
+        "unlocatable": 0
+      },
+      "10_ip_ownership": {
+        "positives": 50,
+        "negatives": 148,
+        "unlocatable": 0
+      }
+    }
+  },
+  "robustness": {
+    "n_contracts": 303,
+    "by_clause": {
+      "01_governing_law": {
+        "positives": 261,
+        "negatives": 42,
+        "unlocatable": 7
+      },
+      "02_change_of_control": {
+        "positives": 72,
+        "negatives": 231,
+        "unlocatable": 38
+      },
+      "03_anti_assignment": {
+        "positives": 226,
+        "negatives": 77,
+        "unlocatable": 91
+      },
+      "04_non_compete": {
+        "positives": 73,
+        "negatives": 230,
+        "unlocatable": 24
+      },
+      "05_exclusivity": {
+        "positives": 111,
+        "negatives": 192,
+        "unlocatable": 54
+      },
+      "06_termination_notice": {
+        "positives": 103,
+        "negatives": 200,
+        "unlocatable": 40
+      },
+      "07_renewal": {
+        "positives": 105,
+        "negatives": 198,
+        "unlocatable": 36
+      },
+      "08_cap_on_liability": {
+        "positives": 168,
+        "negatives": 135,
+        "unlocatable": 72
+      },
+      "09_liquidated_damages": {
+        "positives": 40,
+        "negatives": 263,
+        "unlocatable": 19
+      },
+      "10_ip_ownership": {
+        "positives": 72,
+        "negatives": 231,
+        "unlocatable": 38
+      }
+    }
+  },
+  "excluded": [
+    {
+      "contract_id": "PelicanDeliversInc_20200211_S-1_EX-10.3_11975895_EX-10.3_Development Agreement1",
+      "reason": "too_few_positives（对齐率 -1.00）"
+    },
+    {
+      "contract_id": "CardlyticsInc_20180112_S-1_EX-10.16_11002987_EX-10.16_Maintenance Agreement2",
+      "reason": "too_few_positives（对齐率 -1.00）"
+    },
+    {
+      "contract_id": "NETGEAR,INC_04_21_2003-EX-10.16- AMENDMENT #2 TO THE DISTRIBUTION AGREEMENT",
+      "reason": "mixed（对齐率 0.33）"
+    },
+    {
+      "contract_id": "IVILLAGEINC_03_17_1999-EX-10.16-SPONSORSHIP AGREEMENT",
+      "reason": "mixed（对齐率 0.12）"
+    },
+    {
+      "contract_id": "KNOWLABS,INC_08_15_2005-EX-10-INTELLECTUAL PROPERTY AGREEMENT",
+      "reason": "mixed（对齐率 0.33）"
+    },
+    {
+      "contract_id": "SoupmanInc_20150814_8-K_EX-10.1_9230148_EX-10.1_Franchise Agreement3",
+      "reason": "too_few_positives（对齐率 -1.00）"
+    },
+    {
+      "contract_id": "SoupmanInc_20150814_8-K_EX-10.1_9230148_EX-10.1_Franchise Agreement2",
+      "reason": "too_few_positives（对齐率 -1.00）"
+    },
+    {
+      "contract_id": "UnionDentalHoldingsInc_20050204_8-KA_EX-10_3345577_EX-10_Affiliate Agreement",
+      "reason": "mixed（对齐率 0.14）"
+    },
+    {
+      "contract_id": "PRECIGEN,INC_01_22_2020-EX-99.1-JOINT FILING AGREEMENT",
+      "reason": "too_few_positives（对齐率 -1.00）"
+    }
+  ]
+}

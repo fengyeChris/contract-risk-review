@@ -33,7 +33,7 @@
 | 6 | 终止与通知期 | `terminate` / `termination for convenience` / `upon ... days' notice` / `written notice` | 终止 / 提前通知期 |
 | 7 | 自动续期 | `automatically renew` / `auto-renewal` / `renewal term` / `successive ... periods` | 自动续期 / 续展期 |
 | 8 | 责任上限 | `liability ... shall not exceed` / `cap on liability` / `aggregate liability` / `in no event` | 责任上限 / 累计责任 |
-| 9 | 赔偿条款 | `indemnify` / `hold harmless` / `defend` / `indemnification` | 赔偿 / 使免责 / 代为抗辩 |
+| 9 | 违约金 | `liquidated damages` / `as liquidated damages and not as a penalty` / `for each day of delay` / `sole and exclusive remedy` | 违约金 / 每日计算 / 唯一救济 |
 | 10 | 知识产权归属 | `shall own` / `hereby assigns` / `work product` / `intellectual property` / `deliverables` | 归属 / 转让 / 工作成果 |
 
 ### 易混淆陷阱表（Step 4 badcase 归因时高频出现）
@@ -74,7 +74,7 @@
 - **某条款缺失，不等于风险高。** 有些条款缺失反而更清晰。
 - 典型例子：条款 7 自动续期（没有自动续期 = 到期自然结束，规则更清楚）、条款 4 竞业限制（对被动方来说，没有反而是好事）。
 - 因此输出 schema 必须拆成两个字段：`exists: bool` 与 `risk_level: high | medium | low | na`。**条款不存在时，风险填 `na`，不要填 `high`。**
-- 「缺失必备条款清单」只纳入真正必备的类（**暂定**：1 争议解决、8 责任上限、9 赔偿、10 知识产权归属），其余类别缺失只报告、不报警。该清单在 Step 2 用真实数据复核。
+- 「缺失必备条款清单」只纳入真正必备的类：**01 争议解决、08 责任上限、10 知识产权归属**（Step 2 已用真实数据复核后定稿，见 §0.6），其余类别缺失只报告、不报警。
 
 ### 0.4 风险判读的立场（stance）：MVP 固定为「客户 / 买方视角」
 
@@ -98,9 +98,74 @@
 
 | 关联 | 说明 |
 |---|---|
-| **8 ↔ 9** | 赔偿条款（第 9 类）的赔偿金额**通常被排除在责任上限之外**（carve-out）。所以"合同有责任上限"≠"我方安全"——必须同时看上限是否覆盖赔偿义务。**只看 8 不看 9 是最常见的误判。** |
+| **8 ↔ 9** | 违约金（第 9 类）的金额**是否计入责任上限**，是常见争议点：合同若写"违约金不受责任上限约束"，则上限形同虚设；反之违约金可能吃掉整个上限额度。**只看 8 不看 9 是最常见的误判。** |
 | **9 ↔ 10** | 知识产权侵权索赔（第 10 类）是最常见的赔偿触发事由；两者常写在同一段里。 |
 | **5 ↔ 6** | 独家（第 5 类）常与"未达最低采购量可终止"（第 6 类）配套，单独看会漏判风险。 |
+
+### 0.6 数据集口径与金标准覆盖（Step 2 实测后定稿）
+
+**金标准覆盖**：CUAD 41 类 → 本项目 10 类，**10 类全部有对应标签**。
+
+- 原第 9 类「赔偿条款（Indemnification）」在 CUAD 中**没有**对应标签（实测：20,910 条标注、41 个类别名中不含 `Indemn`）。
+- **口径变更（已确认）**：第 9 类改为「**违约金（Liquidated Damages）**」，CUAD 有该类标注。
+- **Indemnification 移入 Step 5.8 backlog**：届时用 LLM 预标注 + 人工抽检自建弱标注集，补齐这一类的评测能力。
+
+**三份数据集（实测拆分）**
+
+| 数据集 | 合同数 | 用途 | 能算的指标 |
+|---|---|---|---|
+| **主评测集**（官方原始文本） | **198** | 主指标报数 | 存在性 F1 / 召回率 **+ 证据定位准确率** |
+| **鲁棒性集**（PDF 转换文本） | **303** | 脏文本鲁棒性验证 | 只算存在性 F1 / 召回率（**单独报，不混入主指标**） |
+| 未纳入 | 9 | 4 个文件名特殊字符未匹配 + 5 个正样本过少 | — |
+
+**主评测集各类别正样本数（实测）**
+
+| 条款 | 正样本 | 条款 | 正样本 |
+|---|---|---|---|
+| 01 争议解决与适用法律 | 173 | 06 终止与通知期 | 79 |
+| 02 控制权变更 | 49 | 07 自动续期 | 70 |
+| 03 转让限制 | 147 | 08 责任上限 | 106 |
+| 04 竞业限制 | 46 | **09 违约金** | **21** ⚠️ |
+| 05 独家排他 | 68 | 10 知识产权归属 | 50 |
+
+**已知局限（必须写进报告，面试时主动讲）**
+
+1. **第 9 类违约金正样本仅 21 个** → 该类指标波动大。处理方式：报告里**注明样本量**，对该类只报"准确率 + 样本量"，不下强结论。
+2. 标注位置精确的占 39.8%，另有 46.2% 可"忽略空白"重新定位，**14.0% 彻底不可定位**（集中在 PDF 转换文本）→ 这是主评测集只取官方文本的根本原因。
+3. 主评测集 **198 份超出 MVP 规格的 50~100 份**，属**边界调整**，理由：位置可信 + 样本量最大化 + Step 5 需要在同一份集合上做前后对比。
+4. **无训练集、也不切独立 dev 集**：本项目的朴素 RAG 不训练模型，"训练集"不适用；不切 dev 是为了让 Step 5 的每项增强都能在**同一份固定评测集**上做前后对比（切开会失去可比性）。调 prompt 时只做人工 badcase 归因（Step 4 要求），不拿评测集当调参集。
+
+### 0.7 切块参数与实测依据（Step 2.5 定稿）
+
+**策略**：方案 B —— 段落为主 + 超长段落二级切
+**脚本**：`scripts/analyze_chunking.py`（定参数）、`scripts/build_chunks.py`（执行切块）
+**参数**：`CHUNK_MAX_CHARS = 1200`、`OVERLAP = 200`
+
+**实测依据（198 份主评测集合同）**
+
+| 分布 | p50 | p90 | p95 | p99 | max |
+|---|---|---|---|---|---|
+| 段落长度 | 137 | 826 | 1353 | 3193 | 6967 |
+| 句子长度 | 118 | 365 | 476 | 795 | 4986 |
+| 金标准证据长度 | 268 | 643 | 849 | 1388 | 2780 |
+
+- **chunk 上限 1200**：可装下 98.1% 的证据（>1200 的仅 1.9%）；约 240~300 token，远低于 `bge-small-en` 的 512 上限
+- **overlap 200**：≥ 句子 p50（118），≈ chunk 的 16.7%，与业界默认（1000/200）同量级
+- 二级切分**优先在句子边界断开**，因此 overlap 对覆盖率影响很小：实测 60 / 200 / 365 的"单块完整包含率"为 94.2% / 94.2% / 94.5%，但 chunk 数量分别 +0% / +2.5% / **+6.4%** → 说明 365 的边际收益（+0.3% 覆盖）不划算
+- 注意：overlap 真正的收益是"相邻块保留跨句上下文"，**本指标量不出来**，所以最后一档是"数据 + 工程惯例"的折中，不假装是纯数据结论
+
+**切块结果（实测）**
+
+| 数据集 | 合同数 | chunk 数 | 平均每份 | chunk 长度 p50 |
+|---|---|---|---|---|
+| 主评测集 | 198 | 13,257 | 67.0 | 996 |
+| 鲁棒性集 | 303 | 19,616 | 64.7 | 1,009 |
+
+**金标准证据的覆盖情况（主评测集 1,405 条证据）**
+
+- 94.2% 被单个 chunk **完整包含**；≥80% 覆盖率合计 **97.1%**；<50% 仅 **0.1%**
+- **已知缺口**：**5.8%** 的证据无法被任何单个 chunk 完整包含（多为跨段落的长证据）
+  → 因此 Step 4 的 context recall **必须按"检索结果集合"计算，不能按单块计算**；同时也说明检索阶段返回多个相邻 chunk 是必需的，靠调大 overlap 解决不了
 
 ---
 
@@ -118,7 +183,7 @@
 | 6 | 终止与通知期 | Termination & Notice Period | `Termination For Convenience` + `Notice Period To Terminate Renewal` | ✅ 定稿 |
 | 7 | 自动续期 | Renewal Term | `Renewal Term` | ✅ 定稿 |
 | 8 | 责任上限 | Cap on Liability | `Cap On Liability` | ✅ 定稿 |
-| 9 | 赔偿条款 | Indemnification | `Indemnification` | ✅ 定稿 |
+| 9 | 违约金 | Liquidated Damages | `Liquidated Damages` | ✅ 定稿（口径变更，见 §0.6）|
 | 10 | 知识产权归属 | IP Ownership Assignment | `Ip Ownership Assignment` | ✅ 定稿 |
 
 ---
@@ -694,74 +759,85 @@ willful misconduct.
 
 ---
 
-# 条款 9：赔偿条款（Indemnification）
+# 条款 9：违约金（Liquidated Damages）
+
+> **口径变更说明**：本类的原定对象是「赔偿条款（Indemnification）」，但 CUAD 41 类中**没有**该标签（Step 2 实测确认），因此改为「违约金」。Indemnification 移入 **Step 5.8 backlog**（用 LLM 预标注 + 人工抽检自建弱标注集）。详见 §0.6。
 
 ## 9.1 它管什么
 
-一方（赔偿方 indemnitor）承诺**替另一方（受偿方 indemnitee）承担**因特定事由引起的**第三方索赔**——包括赔偿金、律师费、和解金，通常还包含**代为抗辩**（defend）义务。
+约定"**一旦发生某种违约，就按事先定好的金额或公式赔**"，不需要去打官司证明实际损失是多少。三个要素：
 
-行业里叫「**三件套**」：`indemnify`（赔钱）+ `defend`（打官司）+ `hold harmless`（使免责）。
+| 要素 | 说明 | 典型表述 |
+|---|---|---|
+| 触发事件 | 什么情况要赔 | 延迟交付、逾期付款、提前终止 |
+| 计算方式 | 怎么算 | `for each day of delay`、`an amount equal to 0.5% of the total fees` |
+| 上限 | 最多赔多少 | `up to a maximum of 10% of the total fees` |
 
-生活类比：**"你惹的事，我替你去打官司、替你赔钱"** —— 相当于给合同装了一条**责任转移通道**。
+配套条款：`as the sole and exclusive remedy`（**唯一救济**）—— 一旦选它，就不能再按实际损失索赔。
 
-常见触发事由：知识产权侵权索赔、人身伤害 / 财产损失、违反协议、违法行为。
+生活类比：**快递延误赔付** ——"每延误一天赔运费的 5%，最高不超过运费本身"。事先约好金额，出事不用吵架；但金额定得离谱，可能被认定为"惩罚性违约金"而不予执行。
+
+> ⚠️ **可执行性风险**：某些法域会把**过高**的违约金认定为惩罚性条款而调整或不予执行。**具体规则需在 Step 3 按适用法律核实后再写进 prompt**，不要凭印象下结论。
 
 ## 9.2 防范什么风险
 
-- **受偿方（我方，客户视角）怕**：被第三方起诉时得自己先掏钱打官司；或赔偿方是空壳公司，赔了也拿不到钱。
-- **赔偿方怕**：赔偿范围**无上限、无限期**，还包含间接损失 → 理论上是无底洞。
-- **与条款 8 的关系（关键）**：赔偿金额通常被**排除在责任上限之外** → **"有上限"不等于安全**（见 §0.5）。
-- **该条款缺失** → 发生第三方索赔时只能各自承担，对我方通常不利 → 因此它在「必备条款清单」里（§0.3）。
+- **我方是收钱方（对方违约）**：违约金**过低** → 对方拖延成本极低，"违约比履约划算"；**没有违约金** → 我方必须举证实际损失（举证难、周期长、律师费高）。
+- **我方是付钱方（我方违约）**：违约金**过高** → 一次触发赔掉大笔利润。
+- **"唯一救济"是隐藏陷阱**：若约定违约金是唯一救济且金额偏低，我方就**失去了索赔实际损失的权利**。
+- **该条款缺失** → 只能按实际损失索赔，成本高、结果不确定。
+- **注意**：违约金**不属于"必备条款"**，缺失不报警（见 §0.3）。
 
 ## 9.3 命中标准（存在性判定）
 
-| 要素 | 典型表述 |
+| 类型 | 典型表述 |
 |---|---|
-| 三件套 | `shall indemnify, defend and hold harmless` |
-| 受偿内容 | `from and against any and all claims, losses, damages, liabilities, costs and expenses (including reasonable attorneys' fees)` |
-| 触发事由 | `arising out of any breach of this Agreement`、`any claim that the Deliverables infringe ... intellectual property` |
-| 程序条款 | `shall promptly notify`、`sole control of the defense`、`shall not settle without consent` |
+| 名称明确型 | `liquidated damages`、`as liquidated damages and not as a penalty` |
+| 公式型 | `for each day of delay`、`per day`、`an amount equal to ...% of ...` |
+| 上限型 | `up to a maximum of ...`、`shall not exceed ... in the aggregate`（特指违约金总额） |
+| 唯一救济型 | `as the sole and exclusive remedy for such delay` |
+| 相邻但不同 | 逾期付款利息（`interest at 1.5% per month`）、一般违约赔偿（`shall be liable for all damages`） |
 
 ## 9.4 边界情况（像但不算）
 
 | 情形 | 判定 | 理由 |
 |---|---|---|
-| `Supplier shall maintain commercial general liability insurance of at least US$1,000,000.` | ❌ 不算 | 属保险条款（`Insurance`），投保 ≠ 赔偿承诺 |
-| `Supplier represents and warrants that the Services will be performed in a professional manner.` | ❌ 不算 | 属**保证条款**（Warranty）：承诺事实/质量，本身不转移第三方索赔 |
-| `Each party covenants not to sue the other with respect to ...` | ❌ 不算 | 属"承诺不起诉"（CUAD 有 `Covenant Not To Sue`） |
-| `Each party shall indemnify the other for its own negligence.` | ✅ 算命中 | 双向赔偿，仍属赔偿条款（风险视对称性判断）|
+| `Supplier shall be liable for all damages arising out of any breach.` | ❌ 不算 | **普通违约赔偿义务**：金额未事先约定，仍需举证实际损失 |
+| `Supplier shall maintain commercial general liability insurance of at least US$1,000,000.` | ❌ 不算 | 属保险条款（`Insurance`），投保 ≠ 约定赔偿额 |
+| `Each party covenants not to sue the other with respect to ...` | ❌ 不算 | 属"承诺不起诉"（`Covenant Not To Sue`） |
+| `Customer shall pay interest on overdue amounts at 1.5% per month.` | ⚠️ 相邻 | 逾期利息功能接近违约金，但通常被视为"迟延利息" → 归并规则待 Step 2 复核 |
+| `liability ... shall not exceed the fees paid in the preceding 12 months` | ❌ 不算 | 属**责任上限**（第 8 类），不是约定赔偿额（见 §0.5 关联） |
 
 ## 9.5 风险三档（客户视角）✅ 已定稿
 
-> 判读两问：① 赔偿是**单向还是双向**、方向对谁有利？② 有没有**程序保护**（通知义务、抗辩控制权、**和解须我方同意**）？
+> 判读两问：① 这条**约束谁**（对方违约时我方收钱，还是我方违约时我方付钱）？② 计算方式、上限、救济性质（是否唯一救济）是否写清？
 
 | 档位 | 判定 |
 |---|---|
-| **高** | **单向只要求我方赔偿对方**；或对方的赔偿范围极窄（不含律师费、仅限列举的个别情形）；或我方赔偿无上限且无程序保护（对方可自行和解、由我承担费用）；或赔偿方无履约能力担保（无保险、无母公司担保） |
-| **中** | 赔偿方向对我方有利，但**缺少关键程序保护**（对方有抗辩控制权且和解无需我方同意）；或触发事由范围过窄；或未约定索赔时限 |
-| **低** | 双向赔偿 + 触发事由明确（IP 侵权 / 人身伤害 / 违约）+ 含合理律师费 + 程序保护完整（及时通知、抗辩控制权、**和解须我方同意**）+ 与责任上限的关系清晰或对方有保险 |
+| **高** | 约束**我方**且金额高、触发条件宽；或约束对方但金额过低（远低于可证明损失）；或约定为**唯一救济**且金额偏低（我方失去索赔实际损失的权利） |
+| **中** | 约束对方、金额与损失量级大致匹配，但缺总额上限，或触发事件偏窄（保护力一般） |
+| **低** | 约束对方 + 计算方式明确（每日 X%）+ 累计上限明确 + 明确"不影响我方索赔其他救济"（non-exclusive remedy） |
 
 ## 9.6 正例
 
 ```
-Supplier shall indemnify, defend and hold harmless Customer from and against any
-and all claims, damages, liabilities, costs and expenses (including reasonable
-attorneys' fees) arising out of any breach of this Agreement or any claim that
-the Deliverables infringe any third party's intellectual property rights.
+If Supplier fails to deliver the Deliverables by the Delivery Date, Supplier
+shall pay to Customer, as liquidated damages and not as a penalty, an amount
+equal to 0.5% of the total fees for each day of delay, up to a maximum of 10%
+of the total fees.
 ```
 
-中文：供应方应就因违反本协议、或交付物侵犯第三方知识产权而引起的任何索赔、损害、责任、成本与费用（**含合理律师费**），对客户进行赔偿、**代为抗辩**并**使其免受损害**。
-→ 存在性：✅（三件套齐全 + 事由明确 + 含律师费）
+中文：若供应方未在交付日交付，应按每日总费用的 **0.5%** 向客户支付违约金（**明示为违约金而非罚款**），累计不超过总费用的 **10%**。
+→ 存在性：✅（触发事件 + 计算方式 + 上限 + 明示性质）
 
 ## 9.7 反例
 
 ```
-Supplier shall maintain commercial general liability insurance of at least
-US$1,000,000 per occurrence.
+Supplier shall be liable for all damages arising out of any breach of this
+Agreement.
 ```
 
-中文：供应方应维持每次事故不低于 **100 万美元**的商业综合责任保险。
-→ 存在性：❌（属保险条款，不是赔偿承诺）
+中文：供应方应就任何违反本协议的行为造成的全部损害承担责任。
+→ 存在性：❌（普通违约赔偿义务，金额未事先约定）
 
 ---
 

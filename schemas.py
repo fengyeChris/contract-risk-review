@@ -32,7 +32,7 @@ class ClauseId(str, Enum):
     TERMINATION_NOTICE = "06_termination_notice"
     RENEWAL = "07_renewal"
     CAP_ON_LIABILITY = "08_cap_on_liability"
-    INDEMNIFICATION = "09_indemnification"
+    LIQUIDATED_DAMAGES = "09_liquidated_damages"
     IP_OWNERSHIP = "10_ip_ownership"
 
 
@@ -104,7 +104,7 @@ class ClauseFinding(BaseModel):
     confidence: float = Field(..., ge=0.0, le=1.0, description="模型对自己结论的置信度")
     evidence: list[Evidence] = Field(default_factory=list, description="证据片段，可为空")
     reason_zh: str = Field(..., min_length=1, description="判定理由（中文），供人工复核")
-    gaps: list[str] = Field(default_factory=list, description="缺口与建议补充项，如'和解须我方同意'")
+    gaps: list[str] = Field(default_factory=list, description="缺口与建议补充项，如'未约定违约金总额上限'")
 
     @model_validator(mode="after")
     def _exists_and_risk_must_be_consistent(self):
@@ -156,15 +156,16 @@ class ReviewReport(BaseModel):
 # ============================================================
 
 
-# 依据 mvp_scope.md §0.3：「缺失必备条款清单」只纳入真正必备的类，
+# 依据 mvp_scope.md §0.3 / §0.6：「缺失必备条款清单」只纳入真正必备的类，
 # 其余类别缺失只报告、不报警。
-
+# 必备清单（3 类）：01 争议解决 / 08 责任上限 / 10 知识产权归属
+# 口径变更：原第 9 类「赔偿条款」已改为「违约金（Liquidated Damages）」，
+#          违约金缺失不属于必备问题 → 从清单中移除（见 mvp_scope.md §0.6）
 REQUIRED_CLAUSES: frozenset[ClauseId] = frozenset(
     {
         ClauseId.GOVERNING_LAW,
         ClauseId.CAP_ON_LIABILITY,
-        ClauseId.INDEMNIFICATION,
-        ClauseId.IP_OWNERSHIP
+        ClauseId.IP_OWNERSHIP,
     }
 )
 
