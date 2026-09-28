@@ -1,0 +1,253 @@
+{
+  "tag": "mini",
+  "finished_at": "2026-09-25 16:26:00",
+  "config": {
+    "model": "qwen-turbo",
+    "top_k": 5,
+    "reader_stance": "customer",
+    "chunk_size": "1200",
+    "chunk_overlap": "200",
+    "contracts_total": 10
+  },
+  "per_clause": [
+    {
+      "clause_id": "01_governing_law",
+      "tp": 9,
+      "fp": 0,
+      "fn": 0,
+      "tn": 1,
+      "excluded": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "evidence_accuracy": 1.0,
+      "ev_hit": 9,
+      "ev_total": 9
+    },
+    {
+      "clause_id": "02_change_of_control",
+      "tp": 2,
+      "fp": 0,
+      "fn": 1,
+      "tn": 7,
+      "excluded": 0,
+      "precision": 1.0,
+      "recall": 0.6666666666666666,
+      "f1": 0.8,
+      "evidence_accuracy": 1.0,
+      "ev_hit": 2,
+      "ev_total": 2
+    },
+    {
+      "clause_id": "03_anti_assignment",
+      "tp": 6,
+      "fp": 0,
+      "fn": 0,
+      "tn": 4,
+      "excluded": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "evidence_accuracy": 0.8333333333333334,
+      "ev_hit": 5,
+      "ev_total": 6
+    },
+    {
+      "clause_id": "04_non_compete",
+      "tp": 3,
+      "fp": 0,
+      "fn": 1,
+      "tn": 6,
+      "excluded": 0,
+      "precision": 1.0,
+      "recall": 0.75,
+      "f1": 0.8571428571428571,
+      "evidence_accuracy": 1.0,
+      "ev_hit": 3,
+      "ev_total": 3
+    },
+    {
+      "clause_id": "05_exclusivity",
+      "tp": 3,
+      "fp": 0,
+      "fn": 1,
+      "tn": 6,
+      "excluded": 0,
+      "precision": 1.0,
+      "recall": 0.75,
+      "f1": 0.8571428571428571,
+      "evidence_accuracy": 0.3333333333333333,
+      "ev_hit": 1,
+      "ev_total": 3
+    },
+    {
+      "clause_id": "06_termination_notice",
+      "tp": 4,
+      "fp": 0,
+      "fn": 0,
+      "tn": 6,
+      "excluded": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "evidence_accuracy": 1.0,
+      "ev_hit": 4,
+      "ev_total": 4
+    },
+    {
+      "clause_id": "07_renewal",
+      "tp": 3,
+      "fp": 0,
+      "fn": 0,
+      "tn": 7,
+      "excluded": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "evidence_accuracy": 0.6666666666666666,
+      "ev_hit": 2,
+      "ev_total": 3
+    },
+    {
+      "clause_id": "08_cap_on_liability",
+      "tp": 4,
+      "fp": 0,
+      "fn": 0,
+      "tn": 6,
+      "excluded": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "evidence_accuracy": 1.0,
+      "ev_hit": 4,
+      "ev_total": 4
+    },
+    {
+      "clause_id": "09_liquidated_damages",
+      "tp": 0,
+      "fp": 1,
+      "fn": 1,
+      "tn": 8,
+      "excluded": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": null,
+      "evidence_accuracy": null,
+      "ev_hit": 0,
+      "ev_total": 0
+    },
+    {
+      "clause_id": "10_ip_ownership",
+      "tp": 2,
+      "fp": 0,
+      "fn": 1,
+      "tn": 7,
+      "excluded": 0,
+      "precision": 1.0,
+      "recall": 0.6666666666666666,
+      "f1": 0.8,
+      "evidence_accuracy": 1.0,
+      "ev_hit": 2,
+      "ev_total": 2
+    }
+  ],
+  "overall": {
+    "macro": {
+      "precision": 0.9,
+      "recall": 0.7833333333333333,
+      "f1": 0.9238095238095239
+    },
+    "micro": {
+      "tp": 36,
+      "fp": 1,
+      "fn": 5,
+      "precision": 0.972972972972973,
+      "recall": 0.8780487804878049,
+      "f1": 0.923076923076923
+    },
+    "evidence_accuracy": 0.8888888888888888,
+    "evidence_hit": 32,
+    "evidence_total": 36,
+    "required_missing_recall": 1.0,
+    "excluded_pipeline_errors": 0
+  },
+  "evidence_miss_cases": [
+    {
+      "contract_id": "LIMEENERGYCO_09_09_1999-EX-10-DISTRIBUTOR AGREEMENT",
+      "clause_id": "05_exclusivity",
+      "pred_spans": [
+        [
+          7057,
+          7500
+        ]
+      ]
+    },
+    {
+      "contract_id": "CENTRACKINTERNATIONALINC_10_29_1999-EX-10.3-WEB SITE HOSTING AGREEMENT",
+      "clause_id": "07_renewal",
+      "pred_spans": []
+    },
+    {
+      "contract_id": "KIROMICBIOPHARMA,INC_05_11_2020-EX-10.23-CONSULTING AGREEMENT",
+      "clause_id": "03_anti_assignment",
+      "pred_spans": []
+    },
+    {
+      "contract_id": "PACIRA PHARMACEUTICALS, INC. - A_R STRATEGIC LICENSING, DISTRIBUTION AND MARKETING AGREEMENT ",
+      "clause_id": "05_exclusivity",
+      "pred_spans": [
+        [
+          48494,
+          48769
+        ]
+      ]
+    }
+  ],
+  "fn_cases": [
+    {
+      "contract_id": "ADAMSGOLFINC_03_21_2005-EX-10.17-ENDORSEMENT AGREEMENT",
+      "clause_id": "04_non_compete",
+      "pred_confidence": 0.95,
+      "reason_zh": "我方=CONSULTANT（顾问，支付价款并接收服务的一方）。合同中未出现明确的竞业限制条款。虽然有部分内容涉及 CONSULTANT 不得使用或推广竞争对手产品，但这些内容属于对 CONSULTANT 的行为限制，而非明确的竞业限制条款。根据边界说明，限制挖人或放弃竞争限制不属于命中标准。",
+      "gold_evidence_head": "When endorsing a non-competitive product, under no circumstances shall CONSULTANT wear, play, use, hold or in any way be associate"
+    },
+    {
+      "contract_id": "DovaPharmaceuticalsInc_20181108_10-Q_EX-10.2_11414857_EX-10.2_Promotion Agreement",
+      "clause_id": "02_change_of_control",
+      "pred_confidence": 0.95,
+      "reason_zh": "我方=Distributor（经销商，支付货款并接收产品的一方）。合同中未出现任何关于「控制权变更（Change of Control）」的触发事件定义或触发后果的相关条款。文本中虽提及了与公司结构变化相关的表述（如 merger, sale of stock），但并未明确构成「控制权变更」，也未规定相关权利义务。",
+      "gold_evidence_head": "Notwithstanding the foregoing, (a) either Party may, without the other Party's consent, assign this Agreement and its rights and o"
+    },
+    {
+      "contract_id": "DovaPharmaceuticalsInc_20181108_10-Q_EX-10.2_11414857_EX-10.2_Promotion Agreement",
+      "clause_id": "05_exclusivity",
+      "pred_confidence": 0.95,
+      "reason_zh": "我方=Distributor（经销商，支付货款并接收产品的一方）。合同文本中未出现任何关于独家交易的明确约定，也未提及限制我方只能向对方采购或销售的内容。所有引用条款均与保密、披露、知识产权等有关，不涉及排他性交易安排。",
+      "gold_evidence_head": "During the Term, subject to the terms and conditions of this Agreement, Dova hereby grants to Valeant the right, on a co-exclusive"
+    },
+    {
+      "contract_id": "DovaPharmaceuticalsInc_20181108_10-Q_EX-10.2_11414857_EX-10.2_Promotion Agreement",
+      "clause_id": "09_liquidated_damages",
+      "pred_confidence": 0.95,
+      "reason_zh": "我方=Distributor（经销商，支付货款并接收产品的一方）。合同中未出现任何关于违约金（Liquidated Damages）的条款，即没有事先约定的赔偿金额或计算公式。文本中提到的利息、责任限制和赔偿条款均不符合「违约金」的定义。",
+      "gold_evidence_head": "Solely in the event that Dova has terminated this Agreement pursuant to Section 12.3.1 and notwithstanding anything else herein, i"
+    },
+    {
+      "contract_id": "PACIRA PHARMACEUTICALS, INC. - A_R STRATEGIC LICENSING, DISTRIBUTION AND MARKETING AGREEMENT ",
+      "clause_id": "10_ip_ownership",
+      "pred_confidence": 0.95,
+      "reason_zh": "我方=Customer（客户，支付货款并接收产品或服务的一方）。合同中未出现成果归属的明确约定，仅提到PPI IP和商标归PPI所有，且EKR仅获得使用许可。没有关于知识产权归属转让或各自保留的明确条款。",
+      "gold_evidence_head": "Upon termination of this Agreement for any reason except by EKR pursuant to Section 16.1(a), EKR shall promptly transfer the Trans"
+    }
+  ],
+  "fp_cases": [
+    {
+      "contract_id": "LohaCompanyltd_20191209_F-1_EX-10.16_11917878_EX-10.16_Supply Agreement",
+      "clause_id": "09_liquidated_damages",
+      "risk_level": "high",
+      "reason_zh": "我方=Distributor（经销商，支付货款并接收产品的一方）。合同中明确约定了违约金条款，包括触发事件（延迟交货）、计算方式（0.5%每7天，最高不超过货物总值的5%）以及具体金额（30%的货物总价）。该条款限制了我方权利，且金额较高。",
+      "pred_evidence_head": "The penalty, however, shall not exceed 5% of the total value of the goods involved in the late delivery."
+    }
+  ],
+  "failures": []
+}

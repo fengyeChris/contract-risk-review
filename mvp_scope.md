@@ -167,6 +167,88 @@
 - **已知缺口**：**5.8%** 的证据无法被任何单个 chunk 完整包含（多为跨段落的长证据）
   → 因此 Step 4 的 context recall **必须按"检索结果集合"计算，不能按单块计算**；同时也说明检索阶段返回多个相邻 chunk 是必需的，靠调大 overlap 解决不了
 
+### 0.8 技术选型记录（Step 3 前置）
+
+| 组件 | MVP 原定 | 实际采用 | 理由 | 备注 |
+|---|---|---|---|---|
+| **Embedding** | `bge-small-en` | **`bge-m3`**（本地已有：`rag_kb_service/models/bge-m3`，2.19 GB / 1024 维 / 8192 token 上限） | 避免重复下载 2.2 GB；模型质量更强 | 见下方「实测记录」 |
+| **Reranker**（精排） | 不做（MVP） | **不做** | `bge-reranker-v2-m3` 属 Step 5.3；现在接入会让 baseline 变强，Step 5.3 再对比时就没有干净的"before" | 本地已具备该模型（2.19 GB），Step 5.3 可直接复用 |
+| 向量库 | Chroma | Chroma | 按 MVP | |
+| LLM | 云 API | DashScope（`qwen-turbo` 起步） | 已有 key | 结构化输出稳定性待 Step 3 实测，不稳则换 `qwen-plus`（需核实价格与模型名） |
+
+**Embedding 实测记录（Step 3.2）**
+
+| 项目 | CPU（`torch 2.11.0+cpu`） | **GPU（`torch 2.11.0+cu128`，RTX 3060）** |
+|---|---|---|
+| 模型加载耗时 | 2.1 秒 | 4.1 秒 |
+| 嵌入吞吐 | 3.3 条/秒 | **44.4 条/秒（13.5×）** |
+| 主评测集全量 13,257 chunk | 约 67 分钟 | **约 5.0 分钟** |
+| 鲁棒性集全量 19,616 chunk | 约 99 分钟 | **约 7.4 分钟** |
+| 单条 query 编码 | 0.107 秒 | **0.056 秒** |
+| 最优 batch_size | 8 | 8 |
+
+其他实测：向量维度 1024；最大序列长度 8192 token（我们的 chunk 约 250 token，远未触顶）；模型目录 2,187 MB。
+
+**环境变更记录（已确认采用方案 1）**
+
+- 把 `langchain1.2` 环境中的 `torch 2.11.0+cpu` **替换**为 `torch 2.11.0+cu128`（同版本号，仅换 build）
+- wheel 来源：官方 `download.pytorch.org/whl/cu128`，**2.56 GB**，**SHA256 校验通过**
+- 验证结果：`cuda_ok True | cuda 12.8 | device NVIDIA GeForce RTX 3060`
+- **回滚命令**：`pip install torch==2.11.0 --index-url https://download.pytorch.org/whl/cpu`
+- 本地 `D:\edgeLoad` 中原有的 `torchaudio/torchvision +cu128` 轮子为 **cp312**，与本环境（Python 3.13）不兼容，且缺少 torch 本体 → 未使用
+
+**踩到的三个坑（已修）**
+
+1. **本地目录缺 `1_Pooling/config.json`**：`sentence-transformers` 会**静默**退化为 mean pooling，而 BGE 系列必须用 CLS pooling → 检索质量会悄悄变差、且不报任何错。修法：显式构造 `Pooling(dim, pooling_mode="cls")`。
+2. **`sentence-transformers 6.1` 的 API 变更**：`pooling_mode_cls_token` 已弃用（改用 `pooling_mode`）；`get_word_embedding_dimension()` 已改名 `get_embedding_dimension()`；`sentence_transformers.models` 已迁移到 `sentence_transformers.sentence_transformer.modules`。
+3. **`str.splitlines()` 读 JSONL 会被"看不见的换行"切断**（Step 3.3 暴露）：PDF 转换文本里含 **U+2028（LINE SEPARATOR）17 个**，`json.dumps(ensure_ascii=False)` 不会转义它（JSON 规范允许字符串里未转义的 U+2028），但 `splitlines()` 把它当换行 → 一条记录被拦腰切断 → `JSONDecodeError: Unterminated string`。
+   - **修法**：在 `text_utils.py` 提供唯一的 `read_jsonl()`（按文件对象迭代，只认 `\n`）与 `write_jsonl()`（写完**自检**文件行数 == 记录数），全项目 4 处调用点统一替换。
+   - **教训**：① `splitlines()` 会按 10 种字符断行，JSONL 的"行"只应由 `\n` 定义；② 这个坑只在**鲁棒性集（PDF 转换文本）**上暴露，主评测集（官方 txt）永远碰不到 —— **脏数据集的第一个价值就是逼出这类潜伏问题**。
+
+**工程约束（GPU 之后已放宽）**
+
+- 索引仍然**持久化 + 增量构建**：已存在的 chunk 跳过、中断可续跑（虽然全量只要 5 分钟，但增量构建能避免"改了几个 chunk 就重建全量"）
+- 全量嵌入时间已可接受 → **主评测集与鲁棒性集都可以建索引**
+- 可选优化（记入 backlog）：fp16/bf16 推理可能再快约一倍，但会轻微改变向量值 → 为保持 Step 4/5 指标可复现，MVP 用 fp32
+- 任何改动若会改变 chunk 集合，都要先评估是否触发重建
+- 向量库采用**单 collection + metadata 区分**：一个 `contract_chunks` 同时存主评测集与鲁棒性集，靠 `contract_id`（全局唯一）与 `split` 过滤。理由：检索本来就按 `contract_id` 过滤，建多 collection 只会增加配置面。代价：**任何"全量统计"必须显式带 `where={"split": ...}`**，不能直接用 `collection.count()`
+
+**backlog（累计）**
+
+| 编号 | 内容 | 触发条件 |
+|---|---|---|
+| 5.3 | `bge-reranker-v2-m3` 精排（本地模型已就绪，可直接复用） | Step 5 |
+| 5.8 | Indemnification 弱标注集自建（LLM 预标注 + 人工抽检） | Step 5 |
+| 5.9（候选） | Embedding 模型对比：`bge-small-en` vs `bge-m3`（同一评测集前后对比；预估 bge-small-en 建索引仅约 4 分钟） | Step 5 |
+| — | fp16/bf16 推理加速（预计再快约一倍，但会轻微改变向量值） | 需要优化吞吐时 |
+| — | 中文合同版本（需自建数据集；中文无 CUAD 对标的公开标注） | Step 5 之后 |
+
+### 0.9 检索层实测与查询构造决策（Step 3.4）
+
+**小型实测（30 个样本：每条款取 3 条"有金标准 chunk"的合同）**
+
+| 查询构造方式 | recall@3 | recall@5 | recall@10 | 平均命中位置 | 中位 |
+|---|---|---|---|---|---|
+| full：中文描述 + 英文信号词 | 70.0% | 73.3% | 83.3% | 2.5 | 2 |
+| **signals_en：英文条款名 + 英文信号词（采用）** | **76.7%** | **80.0%** | 83.3% | **1.9** | **1** |
+
+**决策**：baseline 的检索查询 = **英文条款名 + 英文信号词**（`ClauseSpec.retrieval_query`）。
+理由：中文描述会稀释查询向量（+6.7pp 差异）；**中文判定标准留给 prompt，英文信号词留给检索**，分工清晰。
+
+**命中位置的分布**：平均 1.9、中位 1 → top-k 取 **k=5** 起步是安全的（`recall@10` 与 `recall@5` 只差 3.3pp）。
+
+**两个必须记住的观测（影响 Step 4 归因与 Step 5 增强）**
+
+1. **"未命中金标准 chunk" ≠ "检索失败"**：8 个未命中样本里，至少 3 个其实召回了**主题相关**的 chunk（例如 `03` 的 Top1 就是 `6.1 Assignment. No assignment of this Agreement...`），只是金标准标注的是同一主题的另一处位置。
+   → **存在性判定仍可能正确**。因此 Step 4 的"未召回"归因必须区分：① 完全没找到相关内容；② 找到了相关内容但不是金标准那一处。
+2. **单例根因已定位（05 exclusivity）**：金标准原文含 `exclusive`（全文出现 11 次），但长信号词清单把它排到 10 名之外；改用短短语 `exclusive distributor appointment` 后，金标准 chunk 回到 **第 3 位**。
+   → 说明失败模式是**查询过度泛化**，而这类"信号词字面出现在原文里却排不上"的情况，正是 **Step 5.2 混合检索（BM25）** 最擅长修的；短核心短语的做法记入 **Step 5.4 查询改写** 的待验证假设。
+
+**局限说明**：以上结论基于 30 个样本，属**初步证据**；Step 4 会用 198 份全量评测集复核查询口径与 k 的取值。
+| 5.8 | Indemnification 弱标注集自建（LLM 预标注 + 人工抽检） | Step 5 |
+| 5.9（候选） | Embedding 模型对比：`bge-small-en` vs `bge-m3`（同一评测集前后对比） | Step 5 |
+| — | 中文合同版本（需自建数据集，中文无 CUAD 对标的公开标注） | Step 5 之后 |
+
 ---
 
 ## 1. 十类条款总览
@@ -180,7 +262,7 @@
 | 3 | 转让限制 | Anti-Assignment | `Anti-Assignment` | ✅ 定稿 |
 | 4 | 竞业限制 | Non-Compete | `Non-Compete` | ✅ 定稿 |
 | 5 | 独家排他 | Exclusivity | `Exclusivity` | ✅ 定稿 |
-| 6 | 终止与通知期 | Termination & Notice Period | `Termination For Convenience` + `Notice Period To Terminate Renewal` | ✅ 定稿 |
+| 6 | 终止与通知期 | Termination & Notice Period | `Termination For Convenience`（**已收窄，见 §6.0**） | ✅ 定稿（v0.9.2） |
 | 7 | 自动续期 | Renewal Term | `Renewal Term` | ✅ 定稿 |
 | 8 | 责任上限 | Cap on Liability | `Cap On Liability` | ✅ 定稿 |
 | 9 | 违约金 | Liquidated Damages | `Liquidated Damages` | ✅ 定稿（口径变更，见 §0.6）|
@@ -546,19 +628,33 @@ Products in the Territory.
 
 # 条款 6：终止与通知期（Termination & Notice Period）
 
+## 6.0 口径变更（v0.9.2，依据 badcase_log.md BC-003）
+
+**本类定义已收窄为「任意终止权（for convenience）」。**
+
+| 项 | 变更 |
+|---|---|
+| 原定义 | 终止与通知期（含**违约终止**、通知期、终止后果） |
+| **现定义** | **只有『任意终止权』算命中**：一方**无需理由**即可终止本合同（含其提前通知期） |
+| 明确排除 | **违约终止（for cause）**。理由：① 对方严重违约时我方可解约，通常是**法律默认权利**，不是谈判焦点；② CUAD 金标准只标注 `Termination For Convenience` —— 不收窄会产生**系统性误报**（实测：单份合同即误报 1 类） |
+| 归属调整 | "不续期通知期"归**条款 7**（不计入本类） |
+| 产品影响 | 本类不再报告"有没有违约终止权/补救期" → 记入 backlog（Step 5 之后可考虑增设子字段） |
+
+> **这是本项目第一次"因为真实数据而修改标准"**。记录在此，因为它是可复现的工程动作：先跑 → 与金标准对照 → 定位到"标准层"而非"模型层" → 改标准 → 重跑验证。
+
 ## 6.1 它管什么
 
-合同**怎么结束、以及结束的程序**：
+合同**能不能被一方"无理由"结束，以及要提前多少天说**：
 
-| 类型 | 说明 |
-|---|---|
-| 到期终止 | 期限届满自然结束（Expiration） |
-| 违约终止（for cause） | 对方违约时可终止，通常先给一个**补救期**（cure period） |
-| **任意终止（for convenience）** | **不需要理由**就能终止 —— 风险最高的形态 |
-| 程序要求 | 提前多少天通知（notice period）、通知形式（书面）、发给谁 |
-| 终止后果 | 存续条款（survival）、已交付货物结算、保密信息返还 |
+| 类型 | 说明 | 是否算本类命中 |
+|---|---|---|
+| 到期终止 | 期限届满自然结束（Expiration） | ❌ |
+| 违约终止（for cause） | 对方违约时可终止，通常先给**补救期**（cure period） | ❌ 见 §6.0 |
+| **任意终止（for convenience）** | **不需要理由**就能终止 | ✅ **本类唯一命中类型** |
+| 程序要求 | 提前多少天通知（notice period）、通知形式（书面）、发给谁 | ✅（作为风险判读依据） |
+| 终止后果 | 存续条款（survival）、已交付结算、保密信息返还 | ❌（不构成本类存在性） |
 
-生活类比：**退租**。提前多少天说？押金怎么退？能不能"无理由退租"？
+生活类比：**退租**。押金怎么退、提前多少天说都不是关键；关键是「**能不能无理由退租**」——那才是谈判筹码。
 
 ## 6.2 防范什么风险
 
@@ -569,12 +665,12 @@ Products in the Territory.
 
 ## 6.3 命中标准（存在性判定）
 
-| 类型 | 典型表述 |
-|---|---|
-| 任意终止 | `may terminate this Agreement for convenience`、`at any time`、`without cause` |
-| 违约终止 | `terminate upon ... breach`、`if the other party fails to perform`、`cure period` |
-| 通知期 | `upon thirty (30) days' prior written notice`、`written notice` |
-| 终止后果 | `shall survive termination`、`return of Confidential Information` |
+| 类型 | 典型表述 | 判定 |
+|---|---|---|
+| 任意终止 | `may terminate this Agreement for convenience`、`at any time`、`without cause` | ✅ **命中** |
+| 通知期 | `upon thirty (30) days' prior written notice`、`written notice` | ✅ 命中（随任意终止权一并记录，作为风险档依据） |
+| 违约终止 | `terminate upon ... breach`、`if the other party fails to perform`、`cure period` | ❌ **不算命中**（见 §6.0） |
+| 终止后果 | `shall survive termination`、`return of Confidential Information` | ❌ 不算存在性 |
 
 ## 6.4 边界情况（像但不算）
 
@@ -582,16 +678,19 @@ Products in the Territory.
 |---|---|---|
 | `"Terminated Employee" means any employee whose employment has been terminated by the Company.` | ❌ 不算 | 说的是**雇佣关系的终止**，不是本合同的终止 |
 | `The Term shall commence on the Effective Date and continue until December 31, 2026.` | ⚠️ 相邻 | 只是**期限约定**（CUAD 的 `Expiration Date` 是独立标签），不含终止权 |
-| `This Agreement shall automatically renew ... unless notice of non-renewal ...` | ⚠️ 与条款 7 交叉 | 主类别归条款 7；其中"不续期通知期"与条款 6 重叠 → 归并规则待 Step 2 复核 |
+| `This Agreement shall automatically renew ... unless notice of non-renewal ...` | ⚠️ 与条款 7 交叉 | **已决（§6.0）**：主类别归条款 7，"不续期通知期"也归 7，不计入本类 |
 | `may terminate immediately upon notice` | ⚠️ 算命中，但**上调风险** | 零通知期 = 无缓冲 |
+| `Either party may terminate this Agreement upon ... breach` | ❌ **不算命中** | 违约终止，见 §6.0（属默认权利） |
 
 ## 6.5 风险三档
 
+> 视角：我方 = 客户 / 买方（§0.4）。**前提是本类已命中**（即存在任意终止权）；条款完全缺失时按 §0.3 填 `na`，不适用本表。
+
 | 档位 | 判定 |
 |---|---|
-| **高** | 对方有**无理由终止权** + 通知期 ≤ 30 天 + 无补偿/无过渡安排；或**我方完全没有终止权**（单向锁死） |
-| **中** | 双向任意终止 + 通知期 60~90 天；或只有违约终止，但补救期（cure period）过短（≤ 10 天） |
-| **低** | 双向终止 + 通知期合理（如 90 天）+ 违约终止有合理补救期 + 终止后的结算与存续条款清晰 |
+| **高** | **只有对方**有任意终止权（我方无），且通知期 ≤ 30 天、无补偿或无过渡安排 |
+| **中** | 双向任意终止，通知期 60~90 天；或终止后的结算与存续条款不清晰 |
+| **低** | 双向任意终止 + 通知期合理（≥ 90 天）+ 终止后结算与存续条款清晰 |
 
 ## 6.6 正例
 
@@ -686,6 +785,18 @@ This Agreement may be renewed only by a written amendment signed by both parties
 
 # 条款 8：责任上限（Cap on Liability）
 
+## 8.0 口径变更（v0.9.3，依据 badcase_log.md 的重排轮误报证据）
+
+**本类只认「一般性的责任上限」，不认「绑定特定情形 / 特定救济的额度限制」。**
+
+| 项 | 说明 |
+|---|---|
+| 原口径 | 出现"赔偿金额天花板" **或** "排除间接损失"即算命中 |
+| **现口径** | 必须是**针对一方在合同项下责任的一般性限制**（如"累计责任不超过过去 12 个月费用"、"任何一方均不对间接损失负责"） |
+| **明确排除** | ① 绑定**特定违约情形**的额度限制（例："延迟交货的罚金不超过货值 5%" —— 那属**第 9 类违约金的细节**）；② 绑定**特定事件**的免责（例："双方均不就延迟交货承担间接损失"） |
+| 实测依据 | 重排轮 2 个 08 误报**全部**属此类：LIMEENERGYCO 的"延迟交货不承担间接损失"、LohaCompany 的"延迟交货罚金上限 5%" |
+| 为什么这样改（**不是**为了让样本判对） | §8.2 给本类的存在理由只有一个：**把不可预测的赔付风险变成可计算、可定价的确定成本**。"特定情形的额度限制"给不出整体敞口的天花板 —— 它只限制了那一个情形。所以按本类的目的，必须要求"一般性" |
+
 ## 8.1 它管什么
 
 约定一方（或双方）在合同项下**承担赔偿的最高金额**，通常由 4 个零件组成：
@@ -710,12 +821,14 @@ This Agreement may be renewed only by a written amendment signed by both parties
 
 ## 8.3 命中标准（存在性判定）
 
-| 类型 | 典型表述 |
-|---|---|
-| 上限本体 | `liability ... shall not exceed`、`aggregate liability ... shall be limited to`、`Cap on Liability` |
-| 排除间接损失 | `shall not be liable for ... consequential, indirect, special or punitive damages` |
-| 例外清单 | `except for ...`、`The limitations in this Section shall not apply to ...` |
-| 索赔时效 | `no claim may be brought more than ... months after ...` |
+| 类型 | 典型表述 | 是否算命中 |
+|---|---|---|
+| 上限本体（一般性） | `aggregate liability ... shall not exceed`、`liability ... shall be limited to`、`Cap on Liability` | ✅ |
+| 排除间接损失（一般性） | `NEITHER PARTY SHALL BE LIABLE FOR ANY ... consequential, indirect, special or punitive damages` | ✅（须为一般性表述，不带"仅就某情形"的限定） |
+| 例外清单 | `except for ...`、`The limitations in this Section shall not apply to ...` | ✅（须附在上限句上，单独出现不算） |
+| 索赔时效 | `no claim may be brought more than ... months after ...` | ✅（须附在上限句上） |
+| **绑定特定情形的额度限制** | `the penalty ... shall not exceed 5% of the total value of the goods involved in the late delivery` | ❌ **不算**（见 §8.0：属第 9 类违约金的细节） |
+| **绑定特定事件的免责** | `neither party shall have liability for consequential damages pertaining to late delivery` | ❌ **不算**（只限制了一个情形，不构成本类要的"整体天花板"） |
 
 > ⚠️ Step 2 待复核：CUAD 中 `Cap On Liability` 与 `Uncapped Liability` 是两个独立标签。本项目的第 8 类**只覆盖"存在上限"的情形**；若合同明确写"某类责任不受限制"（uncapped），按**边界情况**处理（见 8.4）。
 
@@ -726,7 +839,9 @@ This Agreement may be renewed only by a written amendment signed by both parties
 | `Nothing in this Agreement shall limit either party's liability for fraud or willful misconduct.` | ❌ 单独出现不算 | 这是**例外声明**（说明哪类责任不受限），本身**没有设定上限**；它只有和上限句一起出现时才组成完整条款 |
 | `Supplier's liability for breach of confidentiality shall be unlimited.` | ⚠️ 算命中（责任分配条款），但**风险=高** | 它把最难控的风险排除在上限之外 |
 | `Customer shall maintain insurance of at least US$1,000,000.` | ❌ 不算 | 属保险条款（CUAD 有 `Insurance` 独立标签） |
-| `Supplier shall not be liable for any indirect or consequential damages.` | ✅ 算命中 | 排除间接损失是责任限制的组成部分 |
+| `Supplier shall not be liable for any indirect or consequential damages.` | ✅ 算命中 | **一般性**地排除间接损失，是责任限制的组成部分 |
+| `neither the Distributor nor the Company shall have liability for consequential or liquidated damages pertaining to late delivery` | ❌ 不算 | 见 §8.0：绑定**特定情形**（延迟交货）的免责，给不出整体敞口的天花板（**实测误报 case**） |
+| `the penalty ... shall not exceed 5% of the total value of the goods involved in the late delivery` | ❌ 不算（归第 9 类） | 它是**违约金的额度上限**，属第 9 类的细节，不是合同项下的一般责任上限（**实测误报 case**） |
 
 ## 8.5 风险三档（客户视角，示范）
 
@@ -843,6 +958,30 @@ Agreement.
 
 # 条款 10：知识产权归属（IP Ownership Assignment）
 
+## 10.0 口径变更（v0.9.3 → v0.9.4，依据 badcase_log.md 的两轮实测）
+
+**本类只认「归属 / 转让的约定动作」，不认「谁拥有自己 IP 的现状声明」。**
+
+| 版本 | 判据 | 实测结果（重排轮 30 份） |
+|---|---|---|
+| v0.9.2（原口径） | "各自保留 + 授权"也算命中 | 6 个误报（全是背景 IP 保留声明） |
+| v0.9.3 | 必须是**合同项下新产生成果**的归属安排 | ✅ 6 个误报全清；❌ 但误伤 3 个真命中（合同里明明有 `will assign` / `transfer` 条款） |
+| **v0.9.4（现行）** | **看动作**：出现归属 / 转让的**约定动作**即算命中 —— **标的可以是新产生成果，也可以是明确列明的既有 IP** | 见下方核对依据 |
+
+**判据细则**：
+
+- ✅ **命中**：`assign` / `transfer` / `shall be owned by` / `shall be the property of`、明确列明标的（域名、NDA、商标等）的归属安排，以及**转让的配套义务**（`Recordation`、`execute documents to perfect such assignment` —— 登记以转让为前提）
+- ❌ **不算**：单纯 `retain ownership` / `is the owner of all rights` / `licensors own all right, title and interest` 这类**现状声明**；单纯"不转让"声明（`Nothing shall be construed as transferring ...`）；单纯授权（`grants a license`）
+
+**为什么这样改（一致性论证，不是为了让样本判对）**：这正是 §0.2 铁律①「**看动作，不看词**」在本类的落地 ——
+"保留 IP"是**现状**（没有发生归属安排），"转让 / 归属"是**动作**（发生了安排）。
+v0.9.3 我错在把判据放在"标的物是否为新产生成果"上；真正有区分力的是"**有没有动作**"。
+
+| 实测核对依据 | case | 判据下的结果 |
+|---|---|---|
+| 6 个误报 | WHITESMOKE / Reynolds / PREMIERBIOMEDICAL / OPERA / BORROWMONEY / ChinaRealEstate | 全是现状声明 → 应判 ❌（v0.9.3 已达成） |
+| 3 个误伤 | HERTZGLOBAL（`THC will assign ... the THC ERB Domains`）、Cerence（`recordation of the transfers`）、PACIRA（`EKR shall promptly transfer the Transferred NDA`） | 有动作 → 应判 ✅（v0.9.4 要收回） |
+
 ## 10.1 它管什么
 
 合同产生的**知识产权归谁**。必须分清三层：
@@ -864,13 +1003,16 @@ Agreement.
 
 ## 10.3 命中标准（存在性判定）
 
-| 类型 | 典型表述 |
-|---|---|
-| 转让给客户 | `hereby assigns all right, title and interest in and to the Work Product` |
-| 归属声明 | `shall own`、`shall be the sole and exclusive property of` |
-| 保留背景 IP | `each party retains all right, title and interest in its Background IP` |
-| 授权型 | `grants ... a non-exclusive, worldwide, royalty-free license` |
-| 配套 | `shall execute such documents as reasonably requested to perfect such assignment`（配合登记/完善手续） |
+| 类型 | 典型表述 | 是否算命中 |
+|---|---|---|
+| 转让（标的为新成果） | `hereby assigns all right, title and interest in and to the Work Product` | ✅ |
+| 转让（标的为明确列明的资产） | `THC will assign all right, title and interest in and to the THC ERB Domains`、`EKR shall promptly transfer the Transferred NDA to PPI` | ✅（**看动作**，不要求标的是新成果） |
+| 归属约定 | `all Work Product shall be the sole and exclusive property of Client`、`IP developed under this Agreement shall be owned by ...` | ✅ |
+| 转让的配套义务 | `Recordation`（转让登记）、`shall execute such documents as reasonably requested to perfect such assignment` | ✅（登记 / 完善手续**以转让为前提**） |
+| 保留背景 IP（**现状声明**） | `each party retains all right, title and interest in its Background IP`、`HSI will retain ownership of ... Trademarks` | ❌ **不算**（没有发生归属安排） |
+| 单纯权属声明 | `Licensor is the owner of all rights ...`、`Supplier shall retain all rights to its IP in the Products` | ❌ **不算**（同上） |
+| 单纯不转让声明 | `Nothing ... shall be construed as transferring the IP of either Party` | ❌ **不算** |
+| 授权型 | `grants ... a non-exclusive, worldwide, royalty-free license` | ⚠️ 相邻（授权 ≠ 归属，归 `License Grant` 一族） |
 
 ## 10.4 边界情况（像但不算）
 
@@ -879,6 +1021,10 @@ Agreement.
 | `"Intellectual Property" means all patents and copyrights of either party existing as of the Effective Date.` | ❌ 不算 | 只是**定义句**，没有约定归属规则（但"有定义无归属"本身是高风险信号） |
 | `Customer shall not assign this Agreement without prior written consent.` | ❌ 不算 | `assign` 的标的物是**合同**，不是知识产权 → 归条款 3 |
 | `Supplier grants Customer a non-exclusive license to use the Software.` | ⚠️ 相邻 | 授权≠归属（CUAD 有 `License Grant` 独立标签）→ 归并规则待 Step 2 复核 |
+| `Distributor acknowledges that Google and/or its licensors own all right, title and interest, including all Intellectual Property ...` | ❌ 不算 | 见 §10.0：**现状声明**（谁拥有自己的 IP），没有归属 / 转让的动作（**实测误报 case**） |
+| `Nothing in this Agreement shall be construed as transferring the Intellectual Property Rights of either Party or its suppliers ...` | ❌ 不算 | 纯"不转让"声明，同样没有归属动作（**实测误报 case**） |
+| `THC will assign all right, title and interest in and to the THC ERB Domains` | ✅ 命中 | **有 assign 动作**、标的为明确列明的资产（v0.9.3 曾误判为不算 —— **实测误伤 case**） |
+| `Section 2.02. Recordation. The relevant assignee Party ...` / `... the recordation of the transfers ...` | ✅ 命中 | 转让**登记**义务以转让为前提 ⇒ 视为存在转让安排（v0.9.3 曾误判为不算 —— **实测误伤 case**） |
 | `Contractor hereby assigns ... the Work Product ...` | ✅ 命中 | 明确的成果转让 |
 
 ## 10.5 风险三档（客户视角）✅ 已定稿

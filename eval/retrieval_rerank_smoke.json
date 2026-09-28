@@ -1,0 +1,126 @@
+{
+  "tag": "rerank_smoke",
+  "config": {
+    "contracts": 3,
+    "max_k": 20,
+    "chunk_size": "1200",
+    "chunk_overlap": "200",
+    "query_type": "retrieval_query（英文条款名 + 信号词）",
+    "rerank": true,
+    "rerank_model": "E:\\vs_code_workspace\\python_project\\langchain1.2\\rag_kb_service\\models\\bge-reranker-v2-m3",
+    "rerank_candidates": 20,
+    "rerank_max_length": 512
+  },
+  "overall": {
+    "n": 9,
+    "hit@1": 0.4444444444444444,
+    "hit@3": 0.6666666666666666,
+    "hit@5": 1.0,
+    "hit@10": 1.0,
+    "hit@15": 1.0,
+    "hit@20": 1.0,
+    "mrr": 0.6092592592592593
+  },
+  "per_clause": {
+    "01_governing_law": {
+      "n": 3,
+      "hit@1": 0.3333333333333333,
+      "hit@3": 0.6666666666666666,
+      "hit@5": 1.0,
+      "hit@10": 1.0,
+      "hit@15": 1.0,
+      "hit@20": 1.0,
+      "mrr": 0.5111111111111111
+    },
+    "02_change_of_control": {
+      "n": 1,
+      "hit@1": 1.0,
+      "hit@3": 1.0,
+      "hit@5": 1.0,
+      "hit@10": 1.0,
+      "hit@15": 1.0,
+      "hit@20": 1.0,
+      "mrr": 1.0
+    },
+    "03_anti_assignment": {
+      "n": 2,
+      "hit@1": 1.0,
+      "hit@3": 1.0,
+      "hit@5": 1.0,
+      "hit@10": 1.0,
+      "hit@15": 1.0,
+      "hit@20": 1.0,
+      "mrr": 1.0
+    },
+    "04_non_compete": {
+      "n": 0,
+      "hit@1": null,
+      "hit@3": null,
+      "hit@5": null,
+      "hit@10": null,
+      "hit@15": null,
+      "hit@20": null,
+      "mrr": null
+    },
+    "05_exclusivity": {
+      "n": 1,
+      "hit@1": 0.0,
+      "hit@3": 0.0,
+      "hit@5": 1.0,
+      "hit@10": 1.0,
+      "hit@15": 1.0,
+      "hit@20": 1.0,
+      "mrr": 0.2
+    },
+    "06_termination_notice": {
+      "n": 0,
+      "hit@1": null,
+      "hit@3": null,
+      "hit@5": null,
+      "hit@10": null,
+      "hit@15": null,
+      "hit@20": null,
+      "mrr": null
+    },
+    "07_renewal": {
+      "n": 1,
+      "hit@1": 0.0,
+      "hit@3": 1.0,
+      "hit@5": 1.0,
+      "hit@10": 1.0,
+      "hit@15": 1.0,
+      "hit@20": 1.0,
+      "mrr": 0.5
+    },
+    "08_cap_on_liability": {
+      "n": 1,
+      "hit@1": 0.0,
+      "hit@3": 0.0,
+      "hit@5": 1.0,
+      "hit@10": 1.0,
+      "hit@15": 1.0,
+      "hit@20": 1.0,
+      "mrr": 0.25
+    },
+    "09_liquidated_damages": {
+      "n": 0,
+      "hit@1": null,
+      "hit@3": null,
+      "hit@5": null,
+      "hit@10": null,
+      "hit@15": null,
+      "hit@20": null,
+      "mrr": null
+    },
+    "10_ip_ownership": {
+      "n": 0,
+      "hit@1": null,
+      "hit@3": null,
+      "hit@5": null,
+      "hit@10": null,
+      "hit@15": null,
+      "hit@20": null,
+      "mrr": null
+    }
+  }
+}

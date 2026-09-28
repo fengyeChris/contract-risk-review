@@ -1,0 +1,211 @@
+{
+  "tag": "smoke",
+  "finished_at": "2026-09-25 18:54:02",
+  "config": {
+    "model": "qwen3.8-flash",
+    "top_k": 5,
+    "reader_stance": "customer",
+    "chunk_size": "1200",
+    "chunk_overlap": "200",
+    "contracts_total": 2
+  },
+  "per_clause": [
+    {
+      "clause_id": "01_governing_law",
+      "tp": 2,
+      "fp": 0,
+      "fn": 0,
+      "tn": 0,
+      "excluded": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "evidence_accuracy": 1.0,
+      "ev_hit": 2,
+      "ev_total": 2
+    },
+    {
+      "clause_id": "02_change_of_control",
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "tn": 1,
+      "excluded": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "evidence_accuracy": 1.0,
+      "ev_hit": 1,
+      "ev_total": 1
+    },
+    {
+      "clause_id": "03_anti_assignment",
+      "tp": 2,
+      "fp": 0,
+      "fn": 0,
+      "tn": 0,
+      "excluded": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "evidence_accuracy": 1.0,
+      "ev_hit": 2,
+      "ev_total": 2
+    },
+    {
+      "clause_id": "04_non_compete",
+      "tp": 0,
+      "fp": 1,
+      "fn": 0,
+      "tn": 1,
+      "excluded": 0,
+      "precision": 0.0,
+      "recall": null,
+      "f1": null,
+      "evidence_accuracy": null,
+      "ev_hit": 0,
+      "ev_total": 0
+    },
+    {
+      "clause_id": "05_exclusivity",
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "tn": 1,
+      "excluded": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "evidence_accuracy": 0.0,
+      "ev_hit": 0,
+      "ev_total": 1
+    },
+    {
+      "clause_id": "06_termination_notice",
+      "tp": 0,
+      "fp": 1,
+      "fn": 0,
+      "tn": 1,
+      "excluded": 0,
+      "precision": 0.0,
+      "recall": null,
+      "f1": null,
+      "evidence_accuracy": null,
+      "ev_hit": 0,
+      "ev_total": 0
+    },
+    {
+      "clause_id": "07_renewal",
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "tn": 1,
+      "excluded": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "evidence_accuracy": 1.0,
+      "ev_hit": 1,
+      "ev_total": 1
+    },
+    {
+      "clause_id": "08_cap_on_liability",
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "tn": 1,
+      "excluded": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "evidence_accuracy": 1.0,
+      "ev_hit": 1,
+      "ev_total": 1
+    },
+    {
+      "clause_id": "09_liquidated_damages",
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "tn": 2,
+      "excluded": 0,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "evidence_accuracy": null,
+      "ev_hit": 0,
+      "ev_total": 0
+    },
+    {
+      "clause_id": "10_ip_ownership",
+      "tp": 0,
+      "fp": 1,
+      "fn": 0,
+      "tn": 1,
+      "excluded": 0,
+      "precision": 0.0,
+      "recall": null,
+      "f1": null,
+      "evidence_accuracy": null,
+      "ev_hit": 0,
+      "ev_total": 0
+    }
+  ],
+  "overall": {
+    "macro": {
+      "precision": 0.6666666666666666,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "micro": {
+      "tp": 8,
+      "fp": 3,
+      "fn": 0,
+      "precision": 0.7272727272727273,
+      "recall": 1.0,
+      "f1": 0.8421052631578948
+    },
+    "evidence_accuracy": 0.875,
+    "evidence_hit": 7,
+    "evidence_total": 8,
+    "required_missing_recall": 0.6666666666666666,
+    "excluded_pipeline_errors": 0
+  },
+  "evidence_miss_cases": [
+    {
+      "contract_id": "LIMEENERGYCO_09_09_1999-EX-10-DISTRIBUTOR AGREEMENT",
+      "clause_id": "05_exclusivity",
+      "pred_spans": [
+        [
+          7057,
+          7500
+        ]
+      ]
+    }
+  ],
+  "fn_cases": [],
+  "fp_cases": [
+    {
+      "contract_id": "LIMEENERGYCO_09_09_1999-EX-10-DISTRIBUTOR AGREEMENT",
+      "clause_id": "04_non_compete",
+      "risk_level": "medium",
+      "reason_zh": "我方=Distributor（经销商，支付货款并接收产品的一方）。合同第5.7条(B)款明确限制Distributor在协议终止后18个月内不得向Company的客户或潜在客户推销竞争产品，这构成了对特定主体从事竞争业务的限制。虽然该条款限制了“我方”且未明确地域范围，但设定了明确的期限（18个月），属于中等风险。",
+      "pred_evidence_head": "(B)      Distributor further agrees that it will not interfere                            with or  otherwise  disrupt  the  busine"
+    },
+    {
+      "contract_id": "LIMEENERGYCO_09_09_1999-EX-10-DISTRIBUTOR AGREEMENT",
+      "clause_id": "06_termination_notice",
+      "risk_level": "medium",
+      "reason_zh": "我方=Distributor（经销商，支付货款并接收产品的一方）。合同第4.3条虽在片段中未完整显示标题，但第4.4条明确提及“Company terminates the Agreement without cause”（公司无因终止协议），且第4.1条规定“Unless earlier terminated otherwise provided therein”，结合上下文及商业惯例，这通常对",
+      "pred_evidence_head": ""
+    },
+    {
+      "contract_id": "WHITESMOKE,INC_11_08_2011-EX-10.26-PROMOTION AND DISTRIBUTION AGREEMENT",
+      "clause_id": "10_ip_ownership",
+      "risk_level": "low",
+      "reason_zh": "我方=Distributor（经销商，支付货款并接收产品的一方）。合同第7条明确约定了知识产权归属：Google保留其产品及商标的所有权，Distributor保留其应用（Distributor Apps）的所有权。这种“各自保留”且界限清晰的归属约定符合低风险标准，因为作为服务/产品接收方，我方并未丧失对自己核心资产（Distributor Apps）的控制权，同时也未被迫接受模糊的权属条款。",
+      "pred_evidence_head": "7.1 Distributor acknowledges that Google and/or its licensors own all right, title and interest, including all Intellectual Proper"
+    }
+  ],
+  "failures": []
+}

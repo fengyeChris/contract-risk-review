@@ -25,7 +25,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from text_utils import load_txt_index, lookup, read_text  # noqa: E402
+from text_utils import load_txt_index, lookup, read_jsonl, read_text, write_jsonl  # noqa: E402
 
 DATA = ROOT / "data" / "cuad"
 TXT_DIR = DATA / "full_contract_txt"
@@ -154,7 +154,7 @@ def best_coverage(span: tuple[int, int], chunks: list[dict]) -> float:
 
 def process(golden_path: Path, out_chunks: Path, out_map: Path, tag: str) -> dict:
     idx = load_txt_index(TXT_DIR)
-    records = [json.loads(line) for line in golden_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    records = read_jsonl(golden_path)
 
     all_chunks: list[dict] = []
     gold_rows: list[dict] = []
@@ -235,13 +235,8 @@ def process(golden_path: Path, out_chunks: Path, out_map: Path, tag: str) -> dic
                     }
                 )
 
-    out_chunks.parent.mkdir(parents=True, exist_ok=True)
-    with out_chunks.open("w", encoding="utf-8") as fh:
-        for chunk in all_chunks:
-            fh.write(json.dumps(chunk, ensure_ascii=False) + "\n")
-    with out_map.open("w", encoding="utf-8") as fh:
-        for row in gold_rows:
-            fh.write(json.dumps(row, ensure_ascii=False) + "\n")
+    write_jsonl(out_chunks, all_chunks)
+    write_jsonl(out_map, gold_rows)
 
     print(f"\n========== {tag}（chunk 上限 {CHUNK_MAX_CHARS} / overlap {OVERLAP}）==========")
     print(f"合同数            : {stats['contracts']}")

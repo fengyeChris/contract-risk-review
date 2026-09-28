@@ -10,7 +10,6 @@ Step 2.5 前置分析：切块参数（chunk 上限 / overlap）的数据依据
     C:\\Users\\Admin\\.conda\\envs\\langchain1.2\\python.exe -X utf8 scripts\\analyze_chunking.py
 """
 
-import json
 import re
 import statistics
 import sys
@@ -19,7 +18,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from text_utils import load_txt_index, lookup, read_text  # noqa: E402
+from text_utils import load_txt_index, lookup, read_jsonl, read_text  # noqa: E402
 
 DATA = ROOT / "data" / "cuad"
 TXT_DIR = DATA / "full_contract_txt"
@@ -87,7 +86,7 @@ def bucket_report(name: str, values: list[int], edges: list[int]) -> None:
 
 def main() -> None:
     idx = load_txt_index(TXT_DIR)
-    records = [json.loads(line) for line in GOLDEN.read_text(encoding="utf-8").splitlines() if line.strip()]
+    records = read_jsonl(GOLDEN)
     print(f"主评测集合同数: {len(records)}\n")
 
     all_paras: list[int] = []

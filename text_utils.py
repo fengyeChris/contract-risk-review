@@ -5,6 +5,7 @@
 复制两份代码迟早会改歪其中一份 —— 这是最典型的工程坏味道（DRY 原则）。
 """
 
+import json
 import re
 from pathlib import Path
 
@@ -59,3 +60,43 @@ def find_span_loose(text: str, needle: str) -> tuple[int, int] | None:
     if pos < 0:
         return None
     return idxmap[pos], idxmap[pos + len(target) - 1] + 1
+
+
+def read_jsonl(path: Path) -> list[dict]:
+    """
+    读取 JSONL 文件。
+
+    ⚠️ 为什么不用 str.splitlines()：
+        splitlines() 会按 10 种字符断行（\\n \\r \\v \\f \\x1c \\x1d \\x1e \\x85 \\u2028 \\u2029），
+        而 JSONL 的"行"只应由 `\\n` 定义。PDF 转换出的文本里常含 U+2028（行分隔符），
+        用 splitlines() 会把一条记录拦腰切断 → json 报 "Unterminated string"。
+        （实测：chunks_robustness.jsonl 里有 17 个 U+2028，导致多切出 16 行。）
+
+    这里用文件对象迭代：Python 的文件迭代只按 `\\n` 断行（\\r\\n 会被统一成 \\n），
+    U+2028 之类的字符会**作为普通字符留在字符串里** ——
+    而 JSON 规范（RFC 8259）允许字符串里出现未转义的 U+2028。
+    """
+    with path.open("r", encoding="utf-8") as fh:
+        return [json.loads(line) for line in fh if line.strip()]
+
+
+def write_jsonl(path: Path, records: list[dict]) -> None:
+    """
+    写 JSONL，并在写完后**自检**：文件行数必须等于记录数。
+
+    为什么要有这道自检：把"记录被换行字符切断"这类问题挡在**写入端**，
+    而不是等读取时才发现（U+2028 这个坑就是靠它能在写入时被立刻抓住）。
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as fh:
+        for record in records:
+            fh.write(json.dumps(record, ensure_ascii=False) + "\n")
+
+    expected = len(records)
+    with path.open("r", encoding="utf-8") as fh:
+        actual = sum(1 for _ in fh)
+    if actual != expected:
+        raise RuntimeError(
+            f"写入自检失败：{path} 应有 {expected} 行，实际 {actual} 行"
+            f"（可能有记录被换行字符切断，检查文本里是否含 U+2028 / U+2029 / \\x85）"
+        )

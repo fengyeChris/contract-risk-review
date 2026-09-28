@@ -33,7 +33,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from label_mapping import BOUNDARY_ONLY, CROSS_REF, DIRECT_MAP  # noqa: E402
-from text_utils import find_span_loose, load_txt_index, lookup, read_text  # noqa: E402
+from text_utils import find_span_loose, load_txt_index, lookup, read_text, write_jsonl  # noqa: E402
 
 DATA = ROOT / "data" / "cuad"
 JSON_PATH = DATA / "CUAD_v1.json"
@@ -182,13 +182,6 @@ def print_summary(name: str, summary: dict) -> None:
     print(f"  {'clause':24s} {'正样本':>7s} {'负样本':>7s} {'定位失败':>9s}")
     for clause_id, s in summary.items():
         print(f"  {clause_id:24s} {s['positives']:7d} {s['negatives']:7d} {s['unlocatable']:9d}")
-
-
-def write_jsonl(path: Path, records: list[dict]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8") as fh:
-        for record in records:
-            fh.write(json.dumps(record, ensure_ascii=False) + "\n")
 
 
 # ================================================================

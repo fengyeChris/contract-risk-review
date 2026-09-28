@@ -1,0 +1,441 @@
+{
+  "tag": "rerank30_v3",
+  "finished_at": "2026-09-26 22:37:27",
+  "config": {
+    "model": "qwen3.8-flash",
+    "top_k": 5,
+    "reader_stance": "customer",
+    "chunk_size": "1200",
+    "chunk_overlap": "200",
+    "contracts_total": 30,
+    "rerank": {
+      "enabled": true,
+      "candidates": 20,
+      "model": "E:\\vs_code_workspace\\python_project\\langchain1.2\\rag_kb_service\\models\\bge-reranker-v2-m3"
+    }
+  },
+  "per_clause": [
+    {
+      "clause_id": "01_governing_law",
+      "tp": 25,
+      "fp": 0,
+      "fn": 1,
+      "tn": 4,
+      "excluded": 0,
+      "precision": 1.0,
+      "recall": 0.9615384615384616,
+      "f1": 0.9803921568627451,
+      "evidence_accuracy": 0.96,
+      "ev_hit": 24,
+      "ev_total": 25
+    },
+    {
+      "clause_id": "02_change_of_control",
+      "tp": 7,
+      "fp": 2,
+      "fn": 0,
+      "tn": 21,
+      "excluded": 0,
+      "precision": 0.7777777777777778,
+      "recall": 1.0,
+      "f1": 0.8750000000000001,
+      "evidence_accuracy": 0.7142857142857143,
+      "ev_hit": 5,
+      "ev_total": 7
+    },
+    {
+      "clause_id": "03_anti_assignment",
+      "tp": 21,
+      "fp": 0,
+      "fn": 0,
+      "tn": 9,
+      "excluded": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "evidence_accuracy": 1.0,
+      "ev_hit": 21,
+      "ev_total": 21
+    },
+    {
+      "clause_id": "04_non_compete",
+      "tp": 6,
+      "fp": 1,
+      "fn": 0,
+      "tn": 23,
+      "excluded": 0,
+      "precision": 0.8571428571428571,
+      "recall": 1.0,
+      "f1": 0.923076923076923,
+      "evidence_accuracy": 0.8333333333333334,
+      "ev_hit": 5,
+      "ev_total": 6
+    },
+    {
+      "clause_id": "05_exclusivity",
+      "tp": 5,
+      "fp": 2,
+      "fn": 4,
+      "tn": 19,
+      "excluded": 0,
+      "precision": 0.7142857142857143,
+      "recall": 0.5555555555555556,
+      "f1": 0.6250000000000001,
+      "evidence_accuracy": 0.8,
+      "ev_hit": 4,
+      "ev_total": 5
+    },
+    {
+      "clause_id": "06_termination_notice",
+      "tp": 9,
+      "fp": 3,
+      "fn": 2,
+      "tn": 16,
+      "excluded": 0,
+      "precision": 0.75,
+      "recall": 0.8181818181818182,
+      "f1": 0.7826086956521738,
+      "evidence_accuracy": 1.0,
+      "ev_hit": 9,
+      "ev_total": 9
+    },
+    {
+      "clause_id": "07_renewal",
+      "tp": 6,
+      "fp": 0,
+      "fn": 1,
+      "tn": 23,
+      "excluded": 0,
+      "precision": 1.0,
+      "recall": 0.8571428571428571,
+      "f1": 0.923076923076923,
+      "evidence_accuracy": 1.0,
+      "ev_hit": 6,
+      "ev_total": 6
+    },
+    {
+      "clause_id": "08_cap_on_liability",
+      "tp": 8,
+      "fp": 0,
+      "fn": 3,
+      "tn": 19,
+      "excluded": 0,
+      "precision": 1.0,
+      "recall": 0.7272727272727273,
+      "f1": 0.8421052631578948,
+      "evidence_accuracy": 1.0,
+      "ev_hit": 8,
+      "ev_total": 8
+    },
+    {
+      "clause_id": "09_liquidated_damages",
+      "tp": 2,
+      "fp": 2,
+      "fn": 1,
+      "tn": 25,
+      "excluded": 0,
+      "precision": 0.5,
+      "recall": 0.6666666666666666,
+      "f1": 0.5714285714285715,
+      "evidence_accuracy": 1.0,
+      "ev_hit": 2,
+      "ev_total": 2
+    },
+    {
+      "clause_id": "10_ip_ownership",
+      "tp": 7,
+      "fp": 2,
+      "fn": 0,
+      "tn": 21,
+      "excluded": 0,
+      "precision": 0.7777777777777778,
+      "recall": 1.0,
+      "f1": 0.8750000000000001,
+      "evidence_accuracy": 0.8571428571428571,
+      "ev_hit": 6,
+      "ev_total": 7
+    }
+  ],
+  "overall": {
+    "macro": {
+      "precision": 0.8376984126984126,
+      "recall": 0.8586358086358086,
+      "f1": 0.8397688533255231
+    },
+    "micro": {
+      "tp": 96,
+      "fp": 12,
+      "fn": 12,
+      "precision": 0.8888888888888888,
+      "recall": 0.8888888888888888,
+      "f1": 0.8888888888888888
+    },
+    "evidence_accuracy": 0.9375,
+    "evidence_hit": 90,
+    "evidence_total": 96,
+    "required_missing_recall": 0.9565217391304348,
+    "excluded_pipeline_errors": 0
+  },
+  "evidence_miss_cases": [
+    {
+      "contract_id": "ADAMSGOLFINC_03_21_2005-EX-10.17-ENDORSEMENT AGREEMENT",
+      "clause_id": "04_non_compete",
+      "pred_spans": [
+        [
+          2512,
+          2645
+        ],
+        [
+          2648,
+          2808
+        ],
+        [
+          2810,
+          2891
+        ],
+        [
+          2893,
+          2975
+        ],
+        [
+          2137,
+          2186
+        ]
+      ]
+    },
+    {
+      "contract_id": "DovaPharmaceuticalsInc_20181108_10-Q_EX-10.2_11414857_EX-10.2_Promotion Agreement",
+      "clause_id": "02_change_of_control",
+      "pred_spans": [
+        [
+          146343,
+          146442
+        ],
+        [
+          146098,
+          146341
+        ]
+      ]
+    },
+    {
+      "contract_id": "PACIRA PHARMACEUTICALS, INC. - A_R STRATEGIC LICENSING, DISTRIBUTION AND MARKETING AGREEMENT ",
+      "clause_id": "05_exclusivity",
+      "pred_spans": [
+        [
+          25705,
+          26120
+        ],
+        [
+          48132,
+          48459
+        ]
+      ]
+    },
+    {
+      "contract_id": "CerenceInc_20191002_8-K_EX-10.4_11827494_EX-10.4_Intellectual Property Agreement",
+      "clause_id": "02_change_of_control",
+      "pred_spans": []
+    },
+    {
+      "contract_id": "CerenceInc_20191002_8-K_EX-10.4_11827494_EX-10.4_Intellectual Property Agreement",
+      "clause_id": "10_ip_ownership",
+      "pred_spans": [
+        [
+          16011,
+          16471
+        ]
+      ]
+    },
+    {
+      "contract_id": "BORROWMONEYCOM,INC_06_11_2020-EX-10.1-JOINT VENTURE AGREEMENT",
+      "clause_id": "01_governing_law",
+      "pred_spans": [
+        [
+          17101,
+          17309
+        ],
+        [
+          17310,
+          17445
+        ],
+        [
+          16530,
+          16715
+        ]
+      ]
+    }
+  ],
+  "fn_cases": [
+    {
+      "contract_id": "DovaPharmaceuticalsInc_20181108_10-Q_EX-10.2_11414857_EX-10.2_Promotion Agreement",
+      "clause_id": "05_exclusivity",
+      "pred_confidence": 0.95,
+      "reason_zh": "我方=Dova（支付服务费并接收Valeant推广服务的一方）。提供的合同片段中未出现限制我方只能向对方购买/销售或排除第三方的“独家排他”条款。片段2中的“sole and exclusive option”指履行方式的选择权，“non-transferable”指权利不可转让，均不属于交易排他性约定；片段5明确声明救济措施非排他（not intended to be exclusive）。",
+      "gold_evidence_head": "During the Term, subject to the terms and conditions of this Agreement, Dova hereby grants to Valeant the right, on a co-exclusive"
+    },
+    {
+      "contract_id": "DovaPharmaceuticalsInc_20181108_10-Q_EX-10.2_11414857_EX-10.2_Promotion Agreement",
+      "clause_id": "09_liquidated_damages",
+      "pred_confidence": 0.95,
+      "reason_zh": "我方=DOVA或VALEANT（合同双方之一，具体身份需结合全文，但此处仅审查条款存在性）。提供的文本片段中仅包含累积救济、弃权解释规则、名称使用、进一步行动、存续条款、不可抗力以及责任限制（排除间接损失等）条款。未出现任何关于“违约金”、“预定损害赔偿金额”或“基于延迟/违约的计算公式”的约定，因此判定不存在该条款。",
+      "gold_evidence_head": "Solely in the event that Dova has terminated this Agreement pursuant to Section 12.3.1 and notwithstanding anything else herein, i"
+    },
+    {
+      "contract_id": "MetLife, Inc. - Remarketing Agreement",
+      "clause_id": "08_cap_on_liability",
+      "pred_confidence": 0.95,
+      "reason_zh": "我方=Company（作为证券发行方/服务提供方，但在本片段中主要体现为被审查合规性的主体，若视为买方则无明确付款接收服务语境，按保守口径假设我方为需承担责任的合同一方）。提供的文本片段主要涉及公司陈述与保证（如保险子公司资质、税务合规、政府许可等）以及赔偿程序中的律师费限制（针对特定诉讼费用），并未出现一般性的累计责任金额上限或排除间接损失的条款。因此判定不存在责任上限条款。",
+      "gold_evidence_head": "Notwithstanding the provisions of this subsection (d), no Remarketing Agent shall be required to contribute any amount in excess o"
+    },
+    {
+      "contract_id": "DOMINIADVISORTRUST_02_18_2005-EX-99.(H)(2)-SPONSORSHIP AGREEMENT",
+      "clause_id": "08_cap_on_liability",
+      "pred_confidence": 0.95,
+      "reason_zh": "我方=Trust（信托/基金实体，作为服务接收方支付费用并委托Sponsor管理）。提供的合同片段中仅包含Sponsor的免责条款（排除一般过失责任）和职责范围界定，未出现任何关于“累计责任不超过某金额”或“一般性排除间接损失”的责任上限（Cap on Liability）表述。因此判定不存在该条款。",
+      "gold_evidence_head": "Limitation of Liability of the Sponsor."
+    },
+    {
+      "contract_id": "INTRICONCORP_03_10_2009-EX-10.22-Strategic Alliance Agreement",
+      "clause_id": "01_governing_law",
+      "pred_confidence": 0.95,
+      "reason_zh": "我方=IntriCon（被许可方/买方，支付特许权使用费并接收技术的一方）。提供的合同片段中仅包含定义、保密义务、终止后果及一般条款（如可分割性、弃权、转让限制），未出现任何关于适用法律（Governing Law）或争议解决机制（Dispute Resolution/Jurisdiction/Arbitration）的实质性约定。",
+      "gold_evidence_head": "This Agreement is governed by the laws of Victoria, Australia and the parties submit to the jurisdiction of the courts of Victoria"
+    },
+    {
+      "contract_id": "BONTONSTORESINC_04_20_2018-EX-99.3-AGENCY AGREEMENT",
+      "clause_id": "05_exclusivity",
+      "pred_confidence": 0.95,
+      "reason_zh": "我方=Purchaser（买方，支付现金购买资产并接收服务/资产的一方）。文本中出现的“exclusive right”是指Agent拥有独家营销、出售或指定资产买方的权利，属于资产处置权的授权，而非限制我方只能向特定方采购或排除第三方的“独家交易/排他性”条款。此外，“exclusive property”指收益归买方所有，亦非排他性交易约定。因此不存在命中标准的独家排他条款。",
+      "gold_evidence_head": "assignees of (which may in certain circumstances be Purchaser, any of the entities comprising Purchaser, any of their respective a"
+    },
+    {
+      "contract_id": "BONTONSTORESINC_04_20_2018-EX-99.3-AGENCY AGREEMENT",
+      "clause_id": "06_termination_notice",
+      "pred_confidence": 0.95,
+      "reason_zh": "我方=Purchaser/Agent（支付费用并接收服务/资产的一方）。提供的合同片段主要涉及保险维持义务、员工终止雇佣关系的操作细节以及资产处置后的场地清理与遗留物处理，未包含任何关于合同整体“任意终止权（for convenience）”的条款。片段3中的“Termination of Employees”仅指停止使用特定员工，属于运营层面的管理权限，而非合同终止权；其他片段均为履约过程中的具",
+      "gold_evidence_head": "Subject to the Wind-Down Budget and payment of Expenses, Agent shall use the E-Commerce Platform in connection with the GOB Sale t"
+    },
+    {
+      "contract_id": "Freecook_20180605_S-1_EX-10.3_11233807_EX-10.3_Hosting Agreement",
+      "clause_id": "06_termination_notice",
+      "pred_confidence": 0.95,
+      "reason_zh": "我方=Client（客户，支付价款并接收网站设计与托管服务的一方）。提供的合同片段中仅包含服务范围、变更单、交付期限、内容提交要求、许可条款及付款条款，未出现任何关于“任意终止权（for convenience）”或“提前通知期”的约定。虽然第4条提到Company可随意停止提供客户服务，但这属于特定服务内容的调整而非整个合同的终止权，且无相关终止与通知条款存在。",
+      "gold_evidence_head": "Company at its sole discretion may at any time alter or cease providing the Customer Service which it has agreed to provide to Cli"
+    },
+    {
+      "contract_id": "OPERALTD_04_30_2020-EX-4.14-SERVICE AGREEMENT",
+      "clause_id": "07_renewal",
+      "pred_confidence": 0.95,
+      "reason_zh": "我方=PC Financial（客户/服务接收方，支付费用并接收Mobimagic提供的服务）。合同第9.1条明确规定协议仅在Service Period内有效，且续期或延长必须通过双方授权代表签署书面文件进行（'extended or renewed by the Parties in a writing executed...'），这属于需另行签署的非自动续期机制。文本中不存在任何“自动续期”",
+      "gold_evidence_head": "4.7 Data protection. Each Party agrees to comply with all applicable data protection and privacy laws arising from its obligations"
+    },
+    {
+      "contract_id": "ZEBRATECHNOLOGIESCORP_04_16_2014-EX-10.1-INTELLECTUAL PROPERTY AGREEMENT",
+      "clause_id": "05_exclusivity",
+      "pred_confidence": 0.95,
+      "reason_zh": "我方=Purchaser（买方/被许可方，支付对价并接收知识产权授权的一方）。提供的合同片段主要涉及软件源代码披露限制、知识产权许可定义及排除软件的定义，未出现任何关于‘独家交易’、‘排他性供应’或‘禁止向第三方购买/销售’的约定。因此判定不存在独家排他条款。",
+      "gold_evidence_head": "If and to the extent that, as a matter of Law in any jurisdiction, ownership, title, or any rights or interest in or to any of the"
+    },
+    {
+      "contract_id": "ZEBRATECHNOLOGIESCORP_04_16_2014-EX-10.1-INTELLECTUAL PROPERTY AGREEMENT",
+      "clause_id": "08_cap_on_liability",
+      "pred_confidence": 0.95,
+      "reason_zh": "我方=Purchaser（买方/被许可方，支付对价并接收知识产权授权的一方）。提供的合同片段主要包含定义条款（如Excluded Software）、特定情形下的许可终止权及例外声明（Nothing herein shall preclude... seeking damages），未出现任何关于累计责任上限金额、基数或一般性排除间接损失的约定。根据规则，仅存在例外声明或特定情形限制不构成命中，且",
+      "gold_evidence_head": "The sole and exclusive remedy for any breach of this IP Agreement, including the representations and warranties and covenants here"
+    },
+    {
+      "contract_id": "ChinaRealEstateInformationCorp_20090929_F-1_EX-10.32_4771615_EX-10.32_Content License Agreement",
+      "clause_id": "05_exclusivity",
+      "pred_confidence": 0.95,
+      "reason_zh": "我方=Licensee（被许可方，接收内容并支付费用的一方）。提供的合同片段主要涉及保密义务、陈述与保证、定义条款、第三方受益人及管辖法律等内容。经仔细审查，文本中未出现任何关于“独家交易”、“排他性权利”或限制一方只能与另一方进行业务往来的约定。",
+      "gold_evidence_head": "Subject to the terms and conditions of this Agreement, Licensor hereby grants to Licensee, and Licensee hereby accepts from Licens"
+    }
+  ],
+  "fp_cases": [
+    {
+      "contract_id": "LIMEENERGYCO_09_09_1999-EX-10-DISTRIBUTOR AGREEMENT",
+      "clause_id": "04_non_compete",
+      "risk_level": "medium",
+      "reason_zh": "我方=Distributor（经销商，支付货款并接收产品的一方）。合同第5.7条明确约定Distributor在协议终止后18个月内不得向Company的客户或潜在客户推销竞争性产品，这构成了对特定主体从事竞争业务的限制。虽然该条款限制了“我方”且未提及地域范围，但设定了明确的18个月期限，属于有期限但范围较宽的限制，故判定为中风险。",
+      "pred_evidence_head": "(18) months thereafter,  nor will Distributor solicit                            any  customer  or  potential  customer  of Compan"
+    },
+    {
+      "contract_id": "WHITESMOKE,INC_11_08_2011-EX-10.26-PROMOTION AND DISTRIBUTION AGREEMENT",
+      "clause_id": "05_exclusivity",
+      "risk_level": "high",
+      "reason_zh": "我方=Distributor（经销商，支付货款并接收产品的一方）。合同片段1明确引用了“Clause 3.5 (Exclusivity)”，且片段5规定Distributor不得向第三方提供或分发产品，构成了对我方的独家绑定。由于文本中未显示对方有相应的供货保障、价格保护或明确的退出机制，仅见限制我方的条款，故风险判定为高。",
+      "pred_evidence_head": "Except as set out in Clause 2 (Licence Grant and Restrictions) and except for End Users as expressly set out in this  Agreement, D"
+    },
+    {
+      "contract_id": "LohaCompanyltd_20191209_F-1_EX-10.16_11917878_EX-10.16_Supply Agreement",
+      "clause_id": "09_liquidated_damages",
+      "risk_level": "low",
+      "reason_zh": "我方=Buyer（买方，支付货款并接收货物的一方）。合同第18条明确约定了卖方延迟交货的违约金计算方式（每7天0.5%）及上限（不超过涉及货物总价值的5%），且规定在严重违约时买方有权取消合同并要求额外赔偿。该条款约束对方（卖方），触发条件清晰，金额与损失大致匹配且有累计上限，对我方有利，风险低。",
+      "pred_evidence_head": "Should the Sellers fail to make delivery on time as stipulated in the Contract, with exception of Force Majeure causes specified i"
+    },
+    {
+      "contract_id": "ADAMSGOLFINC_03_21_2005-EX-10.17-ENDORSEMENT AGREEMENT",
+      "clause_id": "02_change_of_control",
+      "risk_level": "high",
+      "reason_zh": "我方=CONSULTANT（顾问/服务提供方，接收ADAMS GOLF支付并履行推广义务的一方）。合同第31条标题为“ASSIGNMENT AND CHANGE OF CONTROL”，但正文仅规定双方均不得转让权利义务，未定义控制权变更的具体触发事件，也未赋予我方在对方发生控制权变更时的解约权、同意权或通知接收权。这意味着若ADAMS GOLF被收购，我方无法依据此条款终止合作或要求新主体重新确",
+      "pred_evidence_head": "31. ASSIGNMENT AND CHANGE OF CONTROL"
+    },
+    {
+      "contract_id": "MetLife, Inc. - Remarketing Agreement",
+      "clause_id": "06_termination_notice",
+      "risk_level": "medium",
+      "reason_zh": "我方=Company（发行人/委托方，支付费用并接收再销售服务的一方）。合同第7条明确赋予双方“任意终止权”：Remarketing Agents可辞职，Company可移除Agents，且仅需提前5个工作日通知，无需理由。虽然这是双向权利，但5个工作日的通知期极短（远小于30天），且条款未明确约定终止后的即时结算或补偿机制，仅规定需有继任者方可生效，对我方而言存在因对方突然退出导致业务中断的风险",
+      "pred_evidence_head": "A Remarketing Agent may resign and be discharged from its duties and obligations hereunder, and the Company may remove any or all "
+    },
+    {
+      "contract_id": "ReynoldsConsumerProductsInc_20191115_S-1_EX-10.18_11896469_EX-10.18_Supply Agreement",
+      "clause_id": "09_liquidated_damages",
+      "risk_level": "medium",
+      "reason_zh": "我方=Buyer（买方，支付货款并接收产品的一方）。合同第5片段明确约定了逾期付款违约金（Liquidated Damages）：若买方未按时付款，需按每月2%的比例支付滞纳金。该条款约束我方且计算方式明确，但文本中仅规定上限为法律允许的最大值，未设定具体的累计金额封顶或排除其他救济的说明，故判为中风险。",
+      "pred_evidence_head": "If Buyer fails to pay Seller an amount owed under this Agreement by the invoice due date, then Buyer will owe Seller: (i) the deli"
+    },
+    {
+      "contract_id": "IntegrityFunds_20200121_485BPOS_EX-99.E UNDR CONTR_11948727_EX-99.E UNDR CONTR_Service Agreement",
+      "clause_id": "06_termination_notice",
+      "risk_level": "medium",
+      "reason_zh": "我方=Fund（基金，支付分销服务费并接收服务的一方）。合同片段1明确约定了任意终止权：'This Agreement is terminable with respect to the Fund, without penalty... (a) on 60 days' written notice... or (b) on 90 days' written notice by Integrity.",
+      "pred_evidence_head": "This Agreement is terminable with respect to the Fund, without penalty, (a) on 60 days' written notice, by vote of a majority of t"
+    },
+    {
+      "contract_id": "PREMIERBIOMEDICALINC_05_14_2020-EX-10.2-INTELLECTUAL PROPERTY AGREEMENT",
+      "clause_id": "10_ip_ownership",
+      "risk_level": "high",
+      "reason_zh": "我方=THI（被许可方/支付费用方）。合同片段4中明确约定“Intellectual Property rights in an unelected country shall revert to Marv”，即若我方未在特定国家申请专利，相关知识产权将回归对方所有。这种因未满足程序性条件而导致IP归属权丧失的条款，对我方构成高风险。",
+      "pred_evidence_head": "Intellectual Property rights in an unelected country shall revert to Marv."
+    },
+    {
+      "contract_id": "BONTONSTORESINC_04_20_2018-EX-99.3-AGENCY AGREEMENT",
+      "clause_id": "10_ip_ownership",
+      "risk_level": "low",
+      "reason_zh": "我方=Purchaser（买方，支付价款并接收资产/知识产权的一方）。合同片段2和3明确约定了Merchant拥有的知识产权（Intellectual Property）及资产的出售、转让（transfer/conveyance）权利归属于Purchaser，且规定所有处置所得归Purchaser所有。这属于明确的IP归属与转让动作，且条款完全有利于我方获取IP所有权及收益，故风险为低。",
+      "pred_evidence_head": "(e) marketing and selling, and/or otherwise designating the purchasers, assignees, and/or licensees of any or all intellectual pro"
+    },
+    {
+      "contract_id": "ON2TECHNOLOGIES,INC_11_17_2006-EX-10.3-SUPPORT AND MAINTENANCE AGREEMENT",
+      "clause_id": "02_change_of_control",
+      "risk_level": "high",
+      "reason_zh": "我方=Wildform（被许可方/服务接收方，需支付费用并接收技术的一方）。合同第10.11条明确定义了“Change of Control”作为转让合同的例外情形，允许对方在控制权变更时单方面将合同权利义务转让给存续实体，且规定该转让对受让方继续有效。由于条款仅赋予对方在控制权变更时的自由转让权，未给予我方在此情形下的解约权、同意权或通知义务，导致若对方被收购，我方只能被动接受新交易对手，风险极",
+      "pred_evidence_head": "provided, however, that either party may assign all or part of its rights and obligations under this Agreement in connection with "
+    },
+    {
+      "contract_id": "GLOBALTECHNOLOGIESLTD_06_08_2020-EX-10.16-CONSULTING AGREEMENT",
+      "clause_id": "05_exclusivity",
+      "risk_level": "high",
+      "reason_zh": "我方=Company（接受咨询/介绍机会并支付费用的一方）。合同片段2和5明确规定，Company不得直接或间接与Opportunity建立业务关系、联系相关人员或接受补偿，除非通过Consultant且获得其书面批准。这构成了严格的独家排他条款，将我方完全绑定在Consultant这一渠道上，且文本中未提及任何供货保障、价格保护或退出机制，导致我方处于高风险的被动地位。",
+      "pred_evidence_head": "The Company further agrees that neither it nor its employees, affiliates or assigns, shall enter into, or otherwise arrange (eithe"
+    },
+    {
+      "contract_id": "GLOBALTECHNOLOGIESLTD_06_08_2020-EX-10.16-CONSULTING AGREEMENT",
+      "clause_id": "06_termination_notice",
+      "risk_level": "high",
+      "reason_zh": "我方=Company（客户/服务接收方，聘请Consultant并支付费用）。合同第2条明确规定“Either Party shall have the right to terminate this Agreement with notice”，且终止生效日期为通知收到之日，这意味着双方均拥有无需理由的任意终止权。由于通知期极短（即时生效，无缓冲期）且文本中未提及任何终止后的补偿或结算机制，对我",
+      "pred_evidence_head": "Either Party shall have the right to terminate this Agreement with notice, and the effective date of termination shall be the date"
+    }
+  ],
+  "failures": []
+}
