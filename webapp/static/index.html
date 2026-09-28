@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>合同风险审查 · 演示</title>
+<meta name="description" content="英文合同风险审查：10 类条款的存在性、风险判读与原文证据字符位置，附 198 份合同的可复现评测。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-name">合同风险审查</span>
+    <span class="brand-sub">Contract Risk Review</span>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button class="tab is-on" data-view="report">审查报告</button>
+    <button class="tab" data-view="source">原文对照</button>
+    <button class="tab" data-view="eval">评测</button>
+  </nav>
+  <div class="status"><span class="dot"></span>离线演示 · 读取本地报告，不调用模型</div>
+</header>
+
+<main>
+  <section class="view is-on" id="view-report">
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <label class="field">
+          <span class="field-label">样例合同</span>
+          <select id="sample-select" aria-label="选择样例合同"></select>
+        </label>
+        <div class="segmented" id="filter" role="group" aria-label="过滤条款">
+          <button class="seg is-on" data-filter="all">全部</button>
+          <button class="seg" data-filter="exists">存在</button>
+          <button class="seg" data-filter="missing">缺失</button>
+          <button class="seg" data-filter="high">高风险</button>
+        </div>
+      </div>
+      <div class="toolbar-right" id="diff-badge"></div>
+    </div>
+
+    <div class="summary-strip" id="summary-strip"></div>
+
+    <div class="report-grid">
+      <aside class="clause-list" id="clause-list" aria-label="条款清单"></aside>
+      <article class="clause-detail" id="clause-detail"></article>
+    </div>
+  </section>
+
+  <section class="view" id="view-source">
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <span class="field-label" id="source-title">合同原文</span>
+      </div>
+      <div class="toolbar-right hint">
+        证据位置由程序计算 —— <mark class="ev" style="padding:0 4px">高亮</mark> 处即模型引用的原文，点击可回到对应条款
+      </div>
+    </div>
+    <div class="source-grid">
+      <aside class="source-nav" id="source-nav"></aside>
+      <article class="document"><div class="document-body" id="document-body"></div></article>
+    </div>
+  </section>
+
+  <section class="view" id="view-eval">
+    <div id="eval-body"></div>
+  </section>
+</main>
+
+<footer class="footnote"><span id="footnote"></span></footer>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

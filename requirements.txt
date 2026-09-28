@@ -29,3 +29,8 @@ pydantic==2.12.5
 
 # ---- 开发 / 测试 ----
 pytest==9.0.3
+
+# ---- Web 演示（可选；只读示例报告，不调用 LLM、不需要 GPU）----
+# 用法：python -X utf8 webapp/server.py   → http://127.0.0.1:8077
+fastapi==0.135.1
+uvicorn==0.46.0
