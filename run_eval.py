@@ -29,6 +29,8 @@ import argparse
 import json
 import sys
 import time
+import threading
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -52,7 +54,7 @@ from config import (  # noqa: E402
 from pipeline import default_client, review_contract  # noqa: E402
 from retriever import Retriever  # noqa: E402
 from schemas import REQUIRED_CLAUSES, ClauseId, ReaderStance, ReviewReport  # noqa: E402
-from text_utils import load_txt_index, lookup, read_jsonl, read_text  # noqa: E402
+from text_utils import load_txt_index, lookup, read_jsonl  # noqa: E402
 
 PIPELINE_ERROR_PREFIX = "[PIPELINE_ERROR]"
 
@@ -226,6 +228,11 @@ def main() -> None:
     parser.add_argument("--reports-dir", default=None,
                         help="报告目录，默认 data/processed/reports。做 A/B 时**必须分开**，"
                              "否则 --resume 会把对照组和增强组的报告混着读，指标直接失真")
+    parser.add_argument("--jobs", type=int, default=1,
+                        help="并发审查的合同数（默认 1＝串行）。LLM 的并发总闸由 .env 的 "
+                             "LLM_MAX_CONCURRENCY 控制（默认 6），所以这里调大不会突破 API 限制")
+    parser.add_argument("--clause-jobs", type=int, default=1,
+                        help="单份合同内并发审查的条款数（默认 1）。推荐起步：--jobs 4 --clause-jobs 2")
     args = parser.parse_args()
 
     use_rerank = False if args.no_rerank else None  # None = 跟随 .env
@@ -260,49 +267,99 @@ def main() -> None:
     required_neg_total = required_neg_caught = 0
 
     started_all = time.perf_counter()
-    for idx, record in enumerate(records, 1):
+    jobs = max(1, args.jobs)
+    clause_jobs = max(1, args.clause_jobs)
+    if jobs > 1 or clause_jobs > 1:
+        print(f"并发 = 合同级 {jobs} × 条款级 {clause_jobs}"
+              f"（LLM 并发总闸 {ENV.get('LLM_MAX_CONCURRENCY', '6')}；GPU 检索串行）\n")
+
+    progress_lock = threading.Lock()
+    progress = {"done": 0}
+
+    def mark(contract_id: str, note: str) -> None:
+        """
+        并发模式下的**实时进度**。长跑任务必须能看见进度 —— 卡住时"没有输出"比报错更难查
+        （本项目就吃过一次亏：输出被缓冲到结束，进程被当成超时杀掉）。
+        串行模式不在这里打印，交给第二阶段按旧格式打印，保证输出与旧版完全一致。
+        """
+        if jobs <= 1:
+            return
+        with progress_lock:
+            progress["done"] += 1
+            print(f"[{progress['done']}/{len(records)}] {contract_id[:56]:56s} {note}")
+
+    def produce(record: dict) -> dict:
+        """
+        产出**一份合同的报告**（可在线程里跑）。只做"贵且独立"的事：读缓存 / 调 LLM / 落盘。
+
+        **打分不在这里做** —— 打分留在主线程按顺序做（见第二阶段）。
+        原因：多个线程往同一个 metrics 里累加，结果是不可复现的；而打分本身几乎不耗时，
+        放进线程池只会拿"结果确定性"换一点点速度，是一笔亏本买卖。
+        """
         contract_id = record["contract_id"]
         out_path = reports_dir / f"{safe_filename(contract_id)}.json"
-
-        report = None
         note = ""
         if args.resume and out_path.exists():
             try:
                 report = ReviewReport.model_validate_json(out_path.read_text(encoding="utf-8"))
                 note = "读取已有报告"
+                mark(contract_id, note)
+                return {"contract_id": contract_id, "report": report, "note": note}
             except Exception as exc:  # noqa: BLE001
                 # 上次跑到一半被杀掉 → 可能留下不完整的报告：重跑这一份，而不是让整个评测崩掉
-                print(f"    ⚠️ 已有报告损坏（{exc.__class__.__name__}），改为重跑本合同")
+                note = f"⚠️报告损坏({exc.__class__.__name__})重跑"
+
+        path = lookup(txt_index, contract_id)
+        if path is None:
+            mark(contract_id, "✗ 找不到文本")
+            return {"contract_id": contract_id, "report": None, "note": note, "error": "找不到纯文本文件"}
+
+        t0 = time.perf_counter()
+        try:
+            report, _ = review_contract(
+                contract_id=contract_id,
+                file_name=path.name,
+                retriever=retriever,
+                client=client,
+                model=model,
+                stance=ReaderStance.CUSTOMER,
+                k=k,
+                verbose=False,
+                use_rerank=use_rerank,
+                jobs=clause_jobs,
+            )
+        except Exception as exc:  # noqa: BLE001
+            mark(contract_id, f"✗ {exc!r}")
+            return {"contract_id": contract_id, "report": None, "note": note, "error": repr(exc)}
+        elapsed = time.perf_counter() - t0
         if report is None:
-            path = lookup(txt_index, contract_id)
-            if path is None:
-                failures.append({"contract_id": contract_id, "error": "找不到纯文本文件"})
-                print(f"[{idx}/{len(records)}] {contract_id[:56]:56s} ✗ 找不到文本")
-                continue
-            text = read_text(path)
-            t0 = time.perf_counter()
-            try:
-                report, _ = review_contract(
-                    contract_id=contract_id,
-                    file_name=path.name,
-                    retriever=retriever,
-                    client=client,
-                    model=model,
-                    stance=ReaderStance.CUSTOMER,
-                    k=k,
-                    verbose=False,
-                    use_rerank=use_rerank,
-                )
-            except Exception as exc:  # noqa: BLE001
-                failures.append({"contract_id": contract_id, "error": repr(exc)})
-                print(f"[{idx}/{len(records)}] {contract_id[:56]:56s} ✗ {exc!r}")
-                continue
-            if report is None:
-                failures.append({"contract_id": contract_id, "error": "报告不完整（未覆盖 10 类）"})
-                print(f"[{idx}/{len(records)}] {contract_id[:56]:56s} ✗ 报告不完整")
-                continue
-            out_path.write_text(report.model_dump_json(indent=2), encoding="utf-8")
-            note = f"{time.perf_counter() - t0:5.1f}s"
+            mark(contract_id, "✗ 报告不完整")
+            return {"contract_id": contract_id, "report": None, "note": note, "error": "报告不完整（未覆盖 10 类）"}
+        out_path.write_text(report.model_dump_json(indent=2), encoding="utf-8")
+        note = f"{elapsed:5.1f}s"
+        mark(contract_id, note)
+        return {"contract_id": contract_id, "report": report, "note": note}
+
+    # ---- 第一阶段：生成 / 读取报告（贵，可并发）----
+    # 用 map 而不是 as_completed：map 的返回顺序 = 提交顺序，与 records 一一对应。
+    # 用 as_completed 会按"完成顺序"返回，后面的 zip 打分就会张冠李戴 —— 而且不会崩，只会算错分。
+    if jobs > 1:
+        with ThreadPoolExecutor(max_workers=jobs) as pool:
+            produced = list(pool.map(produce, records))
+    else:
+        produced = [produce(r) for r in records]
+
+    # ---- 第二阶段：按顺序打分（便宜，串行 → 指标累加确定性）----
+    for idx, record in enumerate(records, 1):
+        contract_id = record["contract_id"]
+        item = produced[idx - 1]
+        if item.get("error"):
+            failures.append({"contract_id": contract_id, "error": item["error"]})
+            if jobs <= 1:  # 并发模式下上面 mark() 已经打过这行
+                print(f"[{idx}/{len(records)}] {contract_id[:56]:56s} ✗ {item['error']}")
+            continue
+        report = item["report"]
+        note = item["note"]
 
         # ---- 打分 ----
         labels = record.get("labels", {})
@@ -360,7 +417,9 @@ def main() -> None:
                     required_neg_caught += 1
 
         _, _, _, _, _, running_f1 = _micro(metrics)
-        print(f"[{idx}/{len(records)}] {contract_id[:56]:56s} {note:>16s}  累计 F1={_fmt(running_f1)}")
+        # 串行模式每份都打（与旧版输出一致）；并发模式每 10 份一次 —— 进度已在第一阶段实时可见，这里打太多是刷屏
+        if jobs <= 1 or idx % 10 == 0 or idx == len(records):
+            print(f"[{idx}/{len(records)}] {contract_id[:56]:56s} {note:>16s}  累计 F1={_fmt(running_f1)}")
 
     # ---- 汇总 ----
     total_time = time.perf_counter() - started_all

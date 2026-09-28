@@ -18,7 +18,9 @@ Step 3.4：LLM 审查管线（检索 → 组装 prompt → 调 LLM → 校验 �
 """
 
 import json
+import threading
 import time
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 
 from clauses import CLAUSES, ClauseSpec
@@ -72,6 +74,35 @@ UNLOCATABLE = "unlocatable"
 
 
 # ================================================================
+# 并发原语（工程增强 E1：单份审查 38s → ~10s；全量评测 126 分钟 → ~30 分钟）
+# 注：用独立编号 E1，**不占用 AGENTS.md 的 Step 5.x**（那套是"会影响指标"的增强，
+#     而并发化只改速度、不改任何判定结果 —— 混在一起会让"哪次改动影响了分数"说不清）
+# ================================================================
+# ⚠️ 全量评测的**时间下限由串行检索决定**，不是由 LLM 决定：
+#    实测单份合同的检索（10 类 × 粗召 20 + 精排）= 7.7 秒 → 198 份 ≈ **25 分钟**。
+#    所以"126 → 30 分钟"是现实预期；想更快只能动检索（降 candidates / 换小模型），
+#    而那会改变检索质量 —— 不做（要改也得先有同口径 A/B 证据）。
+# 关键：**三类资源必须分开设限**。如果只设一个"并发数"，一定会出事：
+#   · 网络（LLM 调用）——**可以并发，但必须设上限**。低价/免费档有并发与 QPS 限制，
+#     无上限只会换来一堆 429，再靠退避重试把时间还回去（结果比串行还慢）。
+#     上限取自 .env 的 LLM_MAX_CONCURRENCY（默认 6），且**全局共享** ——
+#     这样"合同级并发 × 条款级并发"无论怎么组合，都不会突破这一个总闸。
+#   · GPU（向量化 + 重排）——**必须串行**。一块卡上同时跑两个模型前向只会互相抢显存与算力；
+#     而检索本身只有 ~0.7s/份，串行的代价很小，换来的是"结果稳定、不会 OOM"。
+#   · 标准输出——加锁，否则多线程 print 互相插字，日志读不了。
+_LLM_SEM = threading.Semaphore(int(ENV.get("LLM_MAX_CONCURRENCY", "6")))
+_GPU_LOCK = threading.Lock()
+_PRINT_LOCK = threading.Lock()
+_RERANKER_LOCK = threading.Lock()
+
+
+def _emit(line: str) -> None:
+    """并发安全的 print（单线程时与 print 完全等价）"""
+    with _PRINT_LOCK:
+        print(line)
+
+
+# ================================================================
 # ⓿ 两段式检索（Step 5.3 增强①：粗召 → rerank 精排）
 # ================================================================
 _RERANKER = None
@@ -89,11 +120,14 @@ def get_reranker(use_rerank: bool | None = None):
     if not enabled:
         return None
     if _RERANKER is None:
-        from reranker import Reranker
+        with _RERANKER_LOCK:
+            # 双重检查锁：并发时两个线程可能同时跑到上面那行判断 → 会加载两份模型（显存直接翻倍）
+            if _RERANKER is None:
+                from reranker import Reranker
 
-        _RERANKER = Reranker(rerank_model_dir(), device=rerank_device(), max_length=rerank_max_length())
-        print(f"[重排已启用] {rerank_model_dir().name} @ {_RERANKER.device} | "
-              f"粗召 {rerank_candidates()} → 精排取 {ENV.get('TOP_K', '5')} 段喂 LLM")
+                _RERANKER = Reranker(rerank_model_dir(), device=rerank_device(), max_length=rerank_max_length())
+                _emit(f"[重排已启用] {rerank_model_dir().name} @ {_RERANKER.device} | "
+                      f"粗召 {rerank_candidates()} → 精排取 {ENV.get('TOP_K', '5')} 段喂 LLM")
     return _RERANKER
 
 
@@ -300,16 +334,24 @@ class ClauseRun:
 
 
 def call_llm(client, model: str, messages: list[dict]) -> tuple[str, float]:
-    started = time.perf_counter()
-    resp = client.chat.completions.create(
-        model=model,
-        messages=messages,
-        temperature=llm_temperature(),  # 来自 .env（智谱要求 > 0，故配 0.01）
-        response_format={"type": "json_object"},
-        max_tokens=1600,  # 留足空间：某些模型（如 GLM）的思考 token 也会占用额度
-        extra_body=llm_extra_body(),  # 供应商特有参数，如智谱关闭思考模式
-    )
-    return resp.choices[0].message.content, time.perf_counter() - started
+    """
+    单次 LLM 调用。请求在**全局信号量内**发起（并发总闸见文件头"并发原语"）。
+
+    计时从拿到信号量之后开始 —— 这样 `latency` 是**真实的接口耗时**，
+    不包含"排队等信号量"的时间（否则并发一开，日志里的耗时会莫名变大 2~3 倍，误导排查）。
+    """
+    with _LLM_SEM:
+        started = time.perf_counter()
+        resp = client.chat.completions.create(
+            model=model,
+            messages=messages,
+            temperature=llm_temperature(),  # 来自 .env（智谱要求 > 0，故配 0.01）
+            response_format={"type": "json_object"},
+            max_tokens=1600,  # 留足空间：某些模型（如 GLM）的思考 token 也会占用额度
+            extra_body=llm_extra_body(),  # 供应商特有参数，如智谱关闭思考模式
+        )
+        elapsed = time.perf_counter() - started
+    return resp.choices[0].message.content, elapsed
 
 
 def review_clause(client, model: str, spec: ClauseSpec, hits: list[dict], stance: ReaderStance,
@@ -380,15 +422,24 @@ def build_summary_zh(findings: list[ClauseFinding], missing: list[ClauseId]) -> 
 def review_contract(contract_id: str, file_name: str, retriever, client, model: str,
                     stance: ReaderStance = ReaderStance.CUSTOMER, k: int | None = None,
                     only: set[ClauseId] | None = None, verbose: bool = True,
-                    use_rerank: bool | None = None):
-    """跑完整份合同。返回 (report | None, runs)；只跑部分条款时不生成完整报告"""
+                    use_rerank: bool | None = None, jobs: int = 1):
+    """
+    跑完整份合同。返回 (report | None, runs)；只跑部分条款时不生成完整报告。
+
+    `jobs > 1` 时**并发跑条款**，但有两条硬约束：
+    · **结果顺序不变**：仍按 `clauses.py` 的登记顺序返回。报告与评测都是按顺序读 `findings` 的，
+      顺序一变就与金标准错位 —— 这类错误不会崩，只会悄悄算错分（比崩更危险）。
+    · **检索串行**：`_GPU_LOCK` 包住检索（向量化 + 重排共用一块卡），只让"等网络"的部分重叠。
+
+    为什么这类条款可以并发：10 类之间完全独立 —— 各自检索、各自调用，互不依赖前一个的输出。
+    """
     k = k or int(ENV.get("TOP_K", "5"))
     reranker = get_reranker(use_rerank)
     specs = [s for s in CLAUSES if not only or s.clause_id in only]
-    runs: list[ClauseRun] = []
 
-    for spec in specs:
-        hits = retrieve_for_clause(retriever, reranker, contract_id, spec.retrieval_query, k)
+    def run_one(spec: ClauseSpec) -> ClauseRun:
+        with _GPU_LOCK:  # 见文件头"并发原语"：GPU 必须串行
+            hits = retrieve_for_clause(retriever, reranker, contract_id, spec.retrieval_query, k)
         if verbose:
             if not hits:
                 detail = "无命中"
@@ -396,15 +447,22 @@ def review_contract(contract_id: str, file_name: str, retriever, client, model: 
                 detail = f"精排 {len(hits)} 段（最高分 {hits[0].get('rerank_score', float('nan')):.3f}）"
             else:
                 detail = f"向量 {len(hits)} 段（最近距离 {hits[0]['distance']:.4f}）"
-            print(f"  {spec.clause_id.value:24s} ① {detail} → ② 调用 LLM…")
+            _emit(f"  {spec.clause_id.value:24s} ① {detail} → ② 调用 LLM…")
         run = review_clause(client, model, spec, hits, stance)
-        runs.append(run)
         if verbose:
             f = run.finding
-            print(
+            _emit(
                 f"  {spec.clause_id.value:24s} ③ 校验通过 exists={str(f.exists):5s} risk={f.risk_level.value:6s} "
                 f"conf={f.confidence:4.2f} 证据={len(f.evidence)} 用时={run.latency:5.1f}s 重试={run.attempts - 1}"
             )
+        return run
+
+    if jobs <= 1 or len(specs) <= 1:
+        runs = [run_one(spec) for spec in specs]  # 串行路径：①→③ 的因果顺序最自然
+    else:
+        with ThreadPoolExecutor(max_workers=min(jobs, len(specs))) as pool:
+            # ex.map 按**提交顺序**返回结果（不是完成顺序）→ 与串行结果完全一致
+            runs = list(pool.map(run_one, specs))
 
     findings = [r.finding for r in runs]
     if len(findings) != len(ClauseId):
