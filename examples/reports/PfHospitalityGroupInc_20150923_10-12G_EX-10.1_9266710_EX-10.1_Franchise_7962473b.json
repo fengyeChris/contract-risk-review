@@ -1,0 +1,327 @@
+{
+  "contract_id": "PfHospitalityGroupInc_20150923_10-12G_EX-10.1_9266710_EX-10.1_Franchise Agreement1",
+  "file_name": "PfHospitalityGroupInc_20150923_10-12G_EX-10.1_9266710_EX-10.1_Franchise Agreement1.txt",
+  "reader_stance": "customer",
+  "findings": [
+    {
+      "clause_id": "01_governing_law",
+      "exists": true,
+      "risk_level": "high",
+      "confidence": 0.95,
+      "evidence": [
+        {
+          "text": "This Agreement and the relationship between the parties is governed by and will be construed exclusively in accordance with the laws of the State of Florida (without regard to, and without applying, Florida conflict-of-law rules).",
+          "char_start": 144731,
+          "char_end": 144961,
+          "section": null,
+          "matched_categories": [
+            "01_governing_law"
+          ]
+        },
+        {
+          "text": "You and the Owners must file any suit against us, and we may file any suit against you, in the federal or state court where our principal office is located at the time the suit is filed.",
+          "char_start": 145770,
+          "char_end": 145956,
+          "section": null,
+          "matched_categories": [
+            "01_governing_law"
+          ]
+        },
+        {
+          "text": "The mediation will take place in the city where our principal offices are located at the time the demand for mediation is filed.",
+          "char_start": 145374,
+          "char_end": 145502,
+          "section": null,
+          "matched_categories": [
+            "01_governing_law"
+          ]
+        }
+      ],
+      "reason_zh": "我方=Franchisee（被许可方/经销商，支付费用并接收特许经营服务的一方）。合同明确约定适用佛罗里达州法律，且强制要求所有诉讼必须在特许人（对方）主要办公所在地法院提起，同时剥夺了我方选择其他管辖地的权利。这种“对方主场+专属管辖”的条款显著增加了我方的维权成本和难度，属于高风险条款。",
+      "gaps": [
+        "建议争取将争议解决地改为中立地点或我方所在地，或至少允许在合同履行地起诉。",
+        "注意1年的诉讼时效限制（Section 25.6），这比许多法域的法定时效更短，需建立严格的内部合规监控机制以防权利丧失。"
+      ]
+    },
+    {
+      "clause_id": "02_change_of_control",
+      "exists": true,
+      "risk_level": "high",
+      "confidence": 0.95,
+      "evidence": [
+        {
+          "text": "For a proposed Transfer of the Franchised Business or this Agreement (or, if Franchisee is a corporation or other entity, a Transfer of ownership interests that would result in a change of control of Franchisee), the following conditions apply (unless waived by us):",
+          "char_start": 107231,
+          "char_end": 107497,
+          "section": null,
+          "matched_categories": [
+            "02_change_of_control"
+          ]
+        },
+        {
+          "text": "Neither you nor any of the Owners may make any Transfer or permit any Transfer to occur without obtaining our prior written consent.",
+          "char_start": 106382,
+          "char_end": 106514,
+          "section": null,
+          "matched_categories": [
+            "02_change_of_control"
+          ]
+        },
+        {
+          "text": "We have the right to withhold our consent, except as otherwise provided in Sections 14.3 [Transfer of Entire Business] through 14.8 [Our Right of First Refusal].",
+          "char_start": 106515,
+          "char_end": 106676,
+          "section": null,
+          "matched_categories": [
+            "02_change_of_control"
+          ]
+        },
+        {
+          "text": "You fail, refuse, or neglect to obtain our prior written approval or consent as required by this Agreement (other than a failure to obtain consent to a proposed Transfer, for which we may terminate without a cure period as provided in Section 15.2 [Termination By Us Without A Cure Period]).",
+          "char_start": 124531,
+          "char_end": 124822,
+          "section": null,
+          "matched_categories": [
+            "02_change_of_control"
+          ]
+        }
+      ],
+      "reason_zh": "我方=Franchisee（被特许人，支付费用并接收品牌/服务的一方）。合同第14条明确将“控制权变更”定义为Transfer的一种情形（Section 14.3），并规定任何此类转让必须获得对方（Franchisor）的事先书面同意（Section 14.2），且对方有权拒绝同意。此外，若未经同意进行转让，对方有权立即终止合同（Section 15.2引用及15.3.3暗示的违约后果）。这种单方面否决权及潜在的即时解约风险对我方极为不利。",
+      "gaps": [
+        "缺乏对‘合理拒绝’标准的界定，对方可任意行使否决权",
+        "未约定在对方无理拒绝同意时的救济机制或强制出售权"
+      ]
+    },
+    {
+      "clause_id": "03_anti_assignment",
+      "exists": true,
+      "risk_level": "high",
+      "confidence": 0.95,
+      "evidence": [
+        {
+          "text": "Neither you nor any of the Owners may make any Transfer or permit any Transfer to occur without obtaining our prior written consent.",
+          "char_start": 106382,
+          "char_end": 106514,
+          "section": null,
+          "matched_categories": [
+            "03_anti_assignment"
+          ]
+        },
+        {
+          "text": "We have the right to withhold our consent, except as otherwise provided in Sections 14.3 [Transfer of Entire Business] through 14.8 [Our Right of First Refusal].",
+          "char_start": 106515,
+          "char_end": 106676,
+          "section": null,
+          "matched_categories": [
+            "03_anti_assignment"
+          ]
+        },
+        {
+          "text": "We may assign our right of first refusal to someone else either before or after we exercise it.",
+          "char_start": 115415,
+          "char_end": 115510,
+          "section": null,
+          "matched_categories": [
+            "03_anti_assignment"
+          ]
+        }
+      ],
+      "reason_zh": "我方=Franchisee（加盟商，支付费用并接收品牌授权与服务的一方）。合同第14条明确禁止我方未经对方事先书面同意进行转让，且对方有权拒绝同意；同时第14.8条赋予对方优先购买权，且允许对方自由转让其优先购买权。这种单向限制我方、赋予对方广泛否决权及自身灵活性的条款对我方风险极高。",
+      "gaps": [
+        "建议审查是否存在‘不得无理拒绝’（not unreasonably withheld）的限制性表述，目前文本显示对方有广泛的拒绝权。",
+        "关注第14.3至14.6条中关于转让的具体例外情形和条件，确认是否过于苛刻导致实际难以达成合规转让。"
+      ]
+    },
+    {
+      "clause_id": "04_non_compete",
+      "exists": true,
+      "risk_level": "high",
+      "confidence": 0.95,
+      "evidence": [
+        {
+          "text": "17. RESTRICTIONS ON COMPETITION",
+          "char_start": 133742,
+          "char_end": 133773,
+          "section": null,
+          "matched_categories": [
+            "04_non_compete"
+          ]
+        },
+        {
+          "text": "You agree that during the term of this Agreement, you will not, without our prior written consent, either directly or indirectly through any other person or entity:",
+          "char_start": 134045,
+          "char_end": 134209,
+          "section": null,
+          "matched_categories": [
+            "04_non_compete"
+          ]
+        },
+        {
+          "text": "For two (2) years after the expiration or termination of this Agreement or an approved Transfer to a new franchisee, you may not directly or indirectly own, manage, engage in, be employed by, advise, make loans to, consult for, or have any other interest in any Competitive Business that is, or intends to operate, within three (3) mile radius of the Premises of your Franchised Business or within a three (3) mile radius of any Restaurant then-operating or under construction to operate under the System, except as permitted by any Franchise Agreements that remain in effect between you and us.",
+          "char_start": 135083,
+          "char_end": 135678,
+          "section": null,
+          "matched_categories": [
+            "04_non_compete"
+          ]
+        }
+      ],
+      "reason_zh": "我方=Franchisee（加盟商，支付费用并接收品牌授权与服务的一方）。合同第17条明确限制了“你”（即我方）在协议期间及终止后两年内从事竞争性业务。该限制范围极广，不仅禁止拥有或管理竞争企业，还禁止受雇、咨询、贷款等任何形式参与，且地域限制为门店周围3英里半径，对我方构成显著的高风险约束。",
+      "gaps": [
+        "建议审查是否有针对竞业限制的额外经济补偿或对价条款，若无则风险极高",
+        "确认'Competitive Business'的定义是否过于宽泛，可能误伤非直接竞争的业务"
+      ]
+    },
+    {
+      "clause_id": "05_exclusivity",
+      "exists": true,
+      "risk_level": "high",
+      "confidence": 0.95,
+      "evidence": [
+        {
+          "text": "you agree to purchase the Secret Recipe Products only from us, our affiliates or from sources that we designate or approve",
+          "char_start": 44250,
+          "char_end": 44372,
+          "section": null,
+          "matched_categories": [
+            "05_exclusivity"
+          ]
+        },
+        {
+          "text": "be purchased only from suppliers that we have expressly approved; and/or (c) be purchased only from a single source (which may include us or our affiliates or a buying cooperative that we organize)",
+          "char_start": 44844,
+          "char_end": 45041,
+          "section": null,
+          "matched_categories": [
+            "05_exclusivity"
+          ]
+        }
+      ],
+      "reason_zh": "我方=Franchisee（被特许方/买方，需支付费用并接收产品/服务的一方）。合同第6.3条及6.4条明确规定我方必须仅从对方或其指定来源购买“Secret Recipe Products”及其他物资，甚至可被要求“仅从单一来源购买”，这构成了典型的独家排他条款。文本中未提及对方对我方的供货保障、价格锁定或退出机制，且赋予对方随时变更规格和供应商的绝对权利，导致我方被深度绑定且缺乏对等保护，风险极高。",
+      "gaps": [
+        "缺少关于独家采购期间的价格保护机制（如最惠国待遇）",
+        "缺少若对方无法按时供货时的替代采购权或违约责任约定",
+        "缺少在特定条件下解除独家采购义务的退出机制"
+      ]
+    },
+    {
+      "clause_id": "06_termination_notice",
+      "exists": false,
+      "risk_level": "na",
+      "confidence": 0.95,
+      "evidence": [],
+      "reason_zh": "我方=Franchisee（被特许人/经销商，支付费用并接收特许经营权的一方）。合同第15条仅规定了因违约、破产或特定事件触发的终止权（如15.1无通知终止、15.2无补救期终止、15.3有补救期终止），未包含任何一方可无需理由即可行使的“任意终止权”（Termination for Convenience）条款。根据命中标准，违约终止不算命中，因此判定不存在该条款。",
+      "gaps": [
+        "建议确认合同中是否在其他章节（如期限条款）隐含了双方均可提前通知终止的权利，目前片段仅显示基于过错的终止机制。"
+      ]
+    },
+    {
+      "clause_id": "07_renewal",
+      "exists": false,
+      "risk_level": "na",
+      "confidence": 0.95,
+      "evidence": [],
+      "reason_zh": "我方=You（经销商/被许可方，支付费用并接收服务的一方）。提供的合同片段主要涉及终止条款（Section 15）、转让限制（Section 14）、一般解释与存续（Section 23）及竞业禁止（Section 17），其中仅规定了协议到期或违约后的自动终止机制，未出现任何关于“自动续期”、“Renewal Term”或需主动通知不续约的条款。因此判定不存在自动续期风险。",
+      "gaps": [
+        "建议检查合同全文中是否存在独立的 'Term' 或 'Renewal' 章节，当前片段未包含初始期限及续期约定的具体文本。"
+      ]
+    },
+    {
+      "clause_id": "08_cap_on_liability",
+      "exists": true,
+      "risk_level": "high",
+      "confidence": 0.95,
+      "evidence": [
+        {
+          "text": "Each of us waives any right to or claim of punitive, exemplary, multiple, or consequential damages against the other in litigation and agrees to be limited to the recovery of actual damages sustained.",
+          "char_start": 146482,
+          "char_end": 146682,
+          "section": null,
+          "matched_categories": [
+            "08_cap_on_liability"
+          ]
+        }
+      ],
+      "reason_zh": "我方=Franchisee（经销商/被许可方，支付费用并接收品牌授权与服务的一方）。合同第25.5条规定双方均放弃惩罚性、示例性、多重或间接损害赔偿请求权，仅能追偿实际损失，这构成了一般性的责任范围限制（排除间接损失），符合命中标准。此外，第25.6条将索赔时效严格限制为1年，结合广泛的免责条款，对我方维权极为不利，风险等级判定为高。",
+      "gaps": [
+        "缺乏明确的金钱数额上限（Cap on Liability Amount），仅通过排除间接损失和缩短时效来限制责任，可能导致在发生大规模直接损失时我方仍面临无限额赔偿风险，或对方以‘无明确金额上限’为由主张更宽泛的解释。",
+        "未明确列出哪些特定情形（如欺诈、故意不当行为）不受此限制，虽然通常法律有默认规定，但合同中未明示例外可能增加解释争议。",
+        "模型引用但在提供的文本中定位不到（疑似幻觉）：Any and all claims and actions arising out of or relating to…"
+      ]
+    },
+    {
+      "clause_id": "09_liquidated_damages",
+      "exists": true,
+      "risk_level": "high",
+      "confidence": 0.95,
+      "evidence": [
+        {
+          "text": "If this Agreement is terminated due to your default, you must, upon written demand, pay us a lump-sum payment in an amount calculated as follows: (a) the average of your Royalty fees and Advertising Contributions due for the last 60 months before our delivery of notice of default (or, if lesser, the months you had been operating before our delivery of notice of default), (b) multiplied by the lesser of 60 or the number of months remaining in the term of this Agreement.",
+          "char_start": 131587,
+          "char_end": 132060,
+          "section": null,
+          "matched_categories": [
+            "09_liquidated_damages"
+          ]
+        },
+        {
+          "text": "The payments called for in Section 16.4 [Liquidated Damages] above constitute liquidated damages for causing the premature termination of this Agreement and not a penalty.",
+          "char_start": 132094,
+          "char_end": 132265,
+          "section": null,
+          "matched_categories": [
+            "09_liquidated_damages"
+          ]
+        },
+        {
+          "text": "Neither does the sum contemplated in Section 16.4 [Liquidated Damages] above represent a price for the privilege of not performing or its payment represent an alternative manner of performance.",
+          "char_start": 132885,
+          "char_end": 133078,
+          "section": null,
+          "matched_categories": [
+            "09_liquidated_damages"
+          ]
+        },
+        {
+          "text": "Accordingly, as a purely liquidated damage provision, this Section does not preclude, nor is inconsistent with, a court granting us specific performance or any other equitable remedies, such as an injunction, to prevent future breaches.",
+          "char_start": 133079,
+          "char_end": 133315,
+          "section": null,
+          "matched_categories": [
+            "09_liquidated_damages"
+          ]
+        }
+      ],
+      "reason_zh": "我方=Franchisee（被特许人/经销商，支付特许权使用费并接收品牌授权与服务的一方）。合同第16.4条明确约定了违约金计算方式：若因我方违约导致协议终止，需支付一笔基于过去60个月平均费用乘以剩余期限的巨额一次性款项。该条款仅约束我方付款义务，且未设定总额上限，同时第25.7条虽称救济非排他，但结合第16.5.2条及第25.8条，对方仍保留申请禁令和特定履行等额外救济的权利，对我方构成极高的财务与法律风险。",
+      "gaps": [
+        "缺乏违约金累计上限或封顶机制",
+        "触发条件宽泛（任何default均可能触发），且计算基数包含广告贡献费等所有前期投入，金额可能远超实际损失",
+        "虽然声明不排斥其他救济，但在已支付高额违约金的情况下，对方仍可主张特定履行或禁令，可能导致双重负担"
+      ]
+    },
+    {
+      "clause_id": "10_ip_ownership",
+      "exists": true,
+      "risk_level": "low",
+      "confidence": 0.95,
+      "evidence": [
+        {
+          "text": "The Customer List is, and remains, our exclusive property, you hereby assign to us all rights you now have or hereafter may acquire in the Customer List.",
+          "char_start": 52690,
+          "char_end": 52843,
+          "section": null,
+          "matched_categories": [
+            "10_ip_ownership"
+          ]
+        }
+      ],
+      "reason_zh": "我方=Franchisee（加盟商，支付费用并接收品牌授权与服务的一方）。合同片段3中明确约定“Customer List is... our exclusive property”且规定“you hereby assign to us all rights”，存在清晰的知识产权/数据资产归属与转让动作。由于该条款将客户名单这一关键商业资产完全归属于特许方（对方），对我方而言属于既定的权利让渡，虽限制了对我方自有数据的控制，但在特许经营模式下通常被视为标准条款，且文本未显示对我方核心经营IP的额外不利剥夺，故风险判定为低（主要体现为合规性确认而非高风险陷阱）。",
+      "gaps": [
+        "建议核查合同中是否有关于其他类型知识产权（如商标、专利、专有技术）的类似归属或许可条款，以全面评估IP风险。",
+        "关注终止后对“Customer List”的使用限制是否过于严苛，影响我方后续业务开展。"
+      ]
+    }
+  ],
+  "missing_required_clauses": [],
+  "summary_zh": "共检查 10 类条款：存在 8 类，缺失 2 类。必备条款（01 争议解决 / 08 责任上限 / 10 知识产权归属）均已检出。高风险 7 类：01_governing_law、02_change_of_control、03_anti_assignment、04_non_compete、05_exclusivity、08_cap_on_liability、09_liquidated_damages。"
+}

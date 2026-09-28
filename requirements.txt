@@ -1,0 +1,31 @@
+# ============================================================
+# 合同风险审查系统 · 依赖清单
+# 环境：Python 3.13（开发环境为 Windows + conda env，RTX 3060 12GB）
+# 原则：**只列代码真正 import 的包**（其余都是它们的传递依赖，会自动装上）
+# ============================================================
+
+# ---- LLM 调用（OpenAI 兼容接口；换供应商只改 .env，不改代码）----
+openai==2.26.0
+
+# ---- 本地向量化 + 重排（bge 系列）----
+sentence-transformers==6.1.0        # 会带上 transformers / tokenizers / huggingface-hub
+
+# ⚠️ torch 必须与 CUDA 版本匹配 —— 这是本项目踩过的坑：
+#    本环境是 torch 2.11.0+cu128；`pip install --upgrade` 会把它升成 cu130 版本，
+#    与驱动/其他包冲突，环境会被打散一次。
+#    所以：**先单独装 torch（指定 index-url），再装本文件其余依赖**，不要让 torch 作为间接依赖被顺手升级。
+#
+#    有 NVIDIA GPU（推荐，本环境实测重排快 13 倍）：
+#        pip install torch==2.11.0 --index-url https://download.pytorch.org/whl/cu128
+#    只有 CPU：
+#        pip install torch==2.11.0 --index-url https://download.pytorch.org/whl/cpu
+torch==2.11.0
+
+# ---- 向量库（每份合同一个 collection）----
+chromadb==1.5.9
+
+# ---- 输出契约校验（模型输出的强约束校验）----
+pydantic==2.12.5
+
+# ---- 开发 / 测试 ----
+pytest==9.0.3

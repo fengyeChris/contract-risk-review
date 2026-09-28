@@ -1,0 +1,201 @@
+{
+  "contract_id": "LIMEENERGYCO_09_09_1999-EX-10-DISTRIBUTOR AGREEMENT",
+  "file_name": "LIMEENERGYCO_09_09_1999-EX-10-DISTRIBUTOR AGREEMENT.txt",
+  "reader_stance": "customer",
+  "findings": [
+    {
+      "clause_id": "01_governing_law",
+      "exists": true,
+      "risk_level": "medium",
+      "confidence": 0.95,
+      "evidence": [
+        {
+          "text": "6.9      Governing Law.  This Agreement is to be construed according to the laws          of the State of Illinois.",
+          "char_start": 52036,
+          "char_end": 52151,
+          "section": null,
+          "matched_categories": [
+            "01_governing_law"
+          ]
+        }
+      ],
+      "reason_zh": "我方=Distributor（经销商，支付货款并接收产品的一方）。合同第6.9条明确约定本合同受伊利诺伊州法律管辖（Governing Law），但未指定具体的争议解决机构（如法院或仲裁庭）及地点。仅约定适用法律而未约定管辖法院，可能导致诉讼地点不确定，若对方主场在伊利诺伊州，我方需承担异地诉讼成本，故风险判读为中。",
+      "gaps": [
+        "缺少明确的争议解决方式（如指定具体法院或仲裁机构）",
+        "未约定诉讼/仲裁的地点，存在不确定性"
+      ]
+    },
+    {
+      "clause_id": "02_change_of_control",
+      "exists": false,
+      "risk_level": "na",
+      "confidence": 0.95,
+      "evidence": [],
+      "reason_zh": "我方=Distributor（经销商，支付货款并接收产品的一方）。提供的合同片段中仅包含一般违约终止权、破产/停业导致的即时终止权以及转让需经同意的条款，未出现任何关于“控制权变更”（Change of Control）的触发事件定义或相关后果约定。因此判定不存在该条款。",
+      "gaps": [
+        "建议补充明确的控制权变更条款，规定若对方发生合并、收购或股权重大变动时，我方是否享有解约权或要求重新协商的权利。"
+      ]
+    },
+    {
+      "clause_id": "03_anti_assignment",
+      "exists": true,
+      "risk_level": "medium",
+      "confidence": 0.95,
+      "evidence": [
+        {
+          "text": "No  assignment  of this  Agreement  or any  right                   accruing  hereunder  shall be made by the Distributor in whole                   or in part,  without the prior written consent of the Company,                   which  consent  shall  not  be  unreasonably  withheld.",
+          "char_start": 45980,
+          "char_end": 46265,
+          "section": null,
+          "matched_categories": [
+            "03_anti_assignment"
+          ]
+        }
+      ],
+      "reason_zh": "我方=Distributor（经销商，支付货款并接收产品的一方）。合同第6.1条明确限制Distributor转让合同需经Company事先书面同意，且规定同意不得被无理拒绝，这符合低风险特征。然而，文本中仅见对Distributor的单向限制，未见对Company转让权利的同等限制条款，根据“单向允许某方自由转让也算（且风险高）”及保守判读原则，这种不对称性构成中等风险。",
+      "gaps": [
+        "未找到关于Company（对方）转让合同权利的限制条款，存在单方限制我方的风险",
+        "未明确关联方或并购情形下的转让例外情况"
+      ]
+    },
+    {
+      "clause_id": "04_non_compete",
+      "exists": true,
+      "risk_level": "medium",
+      "confidence": 0.95,
+      "evidence": [
+        {
+          "text": "(18) months thereafter,  nor will Distributor solicit                            any  customer  or  potential  customer  of Company to                            purchase a competitive product during that period.",
+          "char_start": 44990,
+          "char_end": 45202,
+          "section": null,
+          "matched_categories": [
+            "04_non_compete"
+          ]
+        }
+      ],
+      "reason_zh": "我方=Distributor（经销商，支付货款并接收产品的一方）。合同第5.7条明确约定Distributor在协议终止后18个月内不得向Company的客户或潜在客户推销竞争性产品，这构成了对特定主体从事竞争业务的限制。虽然该条款限制了“我方”且未提及地域范围，但设定了明确的18个月期限，属于有期限但范围较宽的限制，故判定为中风险。",
+      "gaps": [
+        "建议确认是否有对应的商业对价（如独家代理权、预付款等）来平衡此竞业限制义务。",
+        "条款中未明确界定“competitive product”的具体范围，可能存在解释歧义，建议补充定义。"
+      ]
+    },
+    {
+      "clause_id": "05_exclusivity",
+      "exists": true,
+      "risk_level": "medium",
+      "confidence": 0.95,
+      "evidence": [
+        {
+          "text": "The Company appoints the Distributor as an  exclusive  distributor  of Products in the Market,  subject to the terms and conditions of this Agreement.",
+          "char_start": 1854,
+          "char_end": 2004,
+          "section": null,
+          "matched_categories": [
+            "05_exclusivity"
+          ]
+        },
+        {
+          "text": "In                            order  to  maintain  the  exclusive  rights  to sell,                            lease, distribute and service Products in the Market,                            the Distributor must use all commercially  reasonably                            efforts to purchase for sale to  subdistributors  the                            following minimum quantities of the Products from the                            Company:",
+          "char_start": 7057,
+          "char_end": 7500,
+          "section": null,
+          "matched_categories": [
+            "05_exclusivity"
+          ]
+        }
+      ],
+      "reason_zh": "我方=Distributor（经销商，支付货款并接收产品的一方）。合同明确约定Company任命Distributor为Market内的独家分销商（exclusive distributor），同时要求Distributor维持该独家权利需满足最低采购量（minimum quantities）及合理努力义务。由于存在明确的最低采购量约束作为维持独家权的条件，且未提及对方无供货保障或我方无退出机制的极端不利情形，风险判定为中。",
+      "gaps": [
+        "建议确认若未达到最低采购量，公司是否有权单方面取消独家授权或终止合同的具体条款细节。",
+        "需关注片段4中提到的非竞争/禁止招揽期（18 months thereafter）的具体触发条件及对我方后续业务的影响。"
+      ]
+    },
+    {
+      "clause_id": "06_termination_notice",
+      "exists": false,
+      "risk_level": "na",
+      "confidence": 0.95,
+      "evidence": [],
+      "reason_zh": "我方=Distributor（经销商，支付货款并接收产品的一方）。提供的合同片段中仅包含“因违约终止”（Termination for Cause）及破产等法定情形下的立即终止权，未出现允许一方无需理由即可提前通知终止合同的“任意终止权”（Termination for Convenience）条款。虽然第4.4条提及了公司无因终止后的回购义务，但这属于后果处理而非授予终止权的条款，且文本中缺乏对应的任意终止权约定。",
+      "gaps": [
+        "建议核查完整合同中是否存在独立的‘Termination for Convenience’或类似表述的任意终止条款，当前片段缺失该关键权利定义。"
+      ]
+    },
+    {
+      "clause_id": "07_renewal",
+      "exists": true,
+      "risk_level": "low",
+      "confidence": 0.95,
+      "evidence": [
+        {
+          "text": "If Distributor                            complies with all of the terms of this Agreement, the                            Agreement  shall be  renewable on an annual basis for                            one (1) year terms for up to  another  ten (10) years                            on the same terms and conditions as set forth herein.",
+          "char_start": 5543,
+          "char_end": 5881,
+          "section": null,
+          "matched_categories": [
+            "07_renewal"
+          ]
+        }
+      ],
+      "reason_zh": "我方=Distributor（经销商，支付货款并接收产品的一方）。合同第1.3条明确规定协议在满足条件时“shall be renewable on an annual basis”（应按年度续期），且设定了明确的续期次数上限（up to another ten (10) years），属于有上限的自动/半自动续期机制。由于存在明确的总期限封顶（初始10年+最多续期10年），风险较低。",
+      "gaps": [
+        "未明确约定不续期的通知期限（Notice Period for Non-Renewal），建议补充以明确终止流程"
+      ]
+    },
+    {
+      "clause_id": "08_cap_on_liability",
+      "exists": false,
+      "risk_level": "na",
+      "confidence": 0.95,
+      "evidence": [],
+      "reason_zh": "我方=Distributor（经销商，支付货款并接收产品的一方）。提供的合同片段中仅包含针对“延迟交货”这一特定情形的间接损失排除条款（consequential or liquidated damages pertaining to late delivery），以及双向的赔偿义务（Indemnification）和不可抗力免责条款。文本中未出现任何一般性的累计责任上限（Cap on Liability）或整体排除所有间接损失的约定，符合“绑定特定情形/特定事件的免责不算命中”的标准。",
+      "gaps": [
+        "建议补充一般性的责任限制条款（Limitation of Liability），明确设定双方对直接损失、间接损失及惩罚性赔偿的总体赔偿上限（如不超过过去12个月支付的款项总额）。",
+        "当前文本仅排除了与延迟交货相关的间接损失，对于其他违约情形（如产品质量缺陷导致的业务中断、数据丢失等）下的间接损失是否可索赔缺乏明确规定，存在法律不确定性风险。"
+      ]
+    },
+    {
+      "clause_id": "09_liquidated_damages",
+      "exists": false,
+      "risk_level": "na",
+      "confidence": 0.95,
+      "evidence": [
+        {
+          "text": "neither                   the  Distributor  nor the Company  shall have a liability  for                   consequential  or  liquidated   damages   pertaining  to  late                   delivery unless Company  specifically  acknowledges and agrees                   in  writing  to the  same.",
+          "char_start": 14978,
+          "char_end": 15273,
+          "section": null,
+          "matched_categories": [
+            "09_liquidated_damages"
+          ]
+        },
+        {
+          "text": "the number of units which  Distributor  ordered but                   were not timely  delivered to Distributor or to  Distributor's                   customer  will  be  credited  against   Distributor's  minimum                   expectation as specified on Section 1.6 of this Agreement.",
+          "char_start": 13800,
+          "char_end": 14090,
+          "section": null,
+          "matched_categories": [
+            "09_liquidated_damages"
+          ]
+        }
+      ],
+      "reason_zh": "我方=Distributor（经销商，支付货款并接收产品的一方）。合同文本中明确约定双方对迟延交付不承担“liquidated damages”（违约金），除非公司书面同意；且提供的补救措施为将未按时交付的产品数量抵扣最低采购量，而非事先约定的赔偿金额或计算公式。因此不存在符合定义的违约金条款。",
+      "gaps": []
+    },
+    {
+      "clause_id": "10_ip_ownership",
+      "exists": false,
+      "risk_level": "na",
+      "confidence": 0.95,
+      "evidence": [],
+      "reason_zh": "我方=Distributor（经销商，支付货款并接收产品的一方）。提供的合同片段中仅包含知识产权侵权赔偿、合同权利义务的转让限制（Assignment of Agreement）以及明确的“无许可”声明（No License），未出现任何关于知识产权归属或转让的约定动作（如 assign/transfer/shall be owned by 等针对 IP 标的的条款）。",
+      "gaps": []
+    }
+  ],
+  "missing_required_clauses": [
+    "08_cap_on_liability",
+    "10_ip_ownership"
+  ],
+  "summary_zh": "共检查 10 类条款：存在 5 类，缺失 5 类。其中必备条款缺失 2 类：08_cap_on_liability、10_ip_ownership。"
+}

@@ -1,0 +1,12 @@
+# 合同语料是**按字符位置**引用的：报告里的 char_start / char_end 是相对某次读取结果的下标。
+#
+# 为什么必须钉住换行符：
+#   · Python 侧目前是安全的 —— text_utils.read_text 用文本模式读，会把 CRLF 统一成 LF；
+#   · 但前端不安全 —— JS 的 Response.text() 不做换行归一化，CRLF 会让高亮整体错位；
+#   · 另外字节偏移（如按 encode 后计数）会直接算错。
+# 与其依赖"每一处读取都恰好是文本模式"，不如让语料在仓库里恒为 LF。
+examples/contracts/*.txt text eol=lf
+eval/*.jsonl text eol=lf
+
+# 其余文件按 git 默认策略（宁可不指定，也不要写错）
+* text=auto

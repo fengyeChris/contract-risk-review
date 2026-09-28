@@ -30,8 +30,17 @@ PROVIDERS: dict[str, tuple[str, str]] = {
 
 
 def load_env(path: Path | None = None) -> dict[str, str]:
-    """极简 .env 解析（无第三方依赖）"""
+    """
+    极简 .env 解析（无第三方依赖）。
+
+    ⚠️ **`.env` 不存在时返回空字典，而不是抛异常** —— 这条直接决定"能不能被 clone 后跑起来"：
+    新克隆的仓库只有 `.env.example`。如果在 import 阶段就崩，那么连"不需要任何 key"的功能
+    （`run_eval.py --help`、`examples/show_report.py` 离线看报告、`pytest`）都会一起用不了。
+    需要 key 的地方（`build_llm_client()`）在**真正被调用时**才报错，那时提示才是有意义的。
+    """
     target = path or (ROOT / ".env")
+    if not target.exists():
+        return {}
     env: dict[str, str] = {}
     for line in target.read_text(encoding="utf-8").split("\n"):
         line = line.strip()

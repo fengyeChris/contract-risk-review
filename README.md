@@ -30,24 +30,78 @@
 
 ## 2. 快速开始
 
-```powershell
-# 环境：Windows + conda env `langchain1.2`（Python 3.13，依赖 torch / sentence-transformers / chromadb / openai）
-cd hetong
-Copy-Item .env.example .env     # 然后填入自己的 API key 与本地模型路径（.env 已被 gitignore）
+### 2.1 先看输出（**0 依赖、0 花费、不联网**）
 
-# ① 建向量库（本地 bge-m3，不需要联网）
+最想先看的是"长什么样"。`examples/` 里有 3 份真实合同 + 它们跑出来的报告：
+
+```powershell
+cd hetong
+python -X utf8 examples/show_report.py --evidence
+```
+
+```text
+可用样例：
+  1. ADAMSGOLFINC_03_21_2005-EX-10.17-ENDORSEMENT AGREEMENT
+     存在 5/10 类 ｜ 必备条款缺失 2 类 ｜ 证据 16 条
+  2. LIMEENERGYCO_09_09_1999-EX-10-DISTRIBUTOR AGREEMENT         （……共 3 份）
+========================================================================================
+报告文件 : ADAMSGOLFINC_…_9fd51d3c.json
+合同原文 : ADAMSGOLFINC_03_21_2005-EX-10.17-ENDORSEMENT AGREEMENT.txt（24,632 字符）
+读者立场 : customer（客户/买方视角）
+摘要     : 共检查 10 类条款：存在 5 类，缺失 5 类。其中必备条款缺失 2 类：08_cap_on_liability、
+           10_ip_ownership。高风险 3 类：02_change_of_control、04_non_compete、05_exclusivity。
+⚠️ 必备条款缺失 : 08_cap_on_liability、10_ip_ownership
+========================================================================================
+条款                          存在    风险    置信度      证据   理由摘要
+────────────────────────────────────────────────────────────────────────────────────────
+01_governing_law            ✅     中     0.95     3    我方=CONSULTANT（顾问/被许可方…
+02_change_of_control        ✅     高     0.95     2    我方=CONSULTANT（顾问/服务提供方…
+……
+────────────────────────────────────────────────────────────────────────────────────────
+[01_governing_law] 争议解决与适用法律    存在 是 ｜ 风险 中 ｜ 置信度 0.95
+  理由：我方=CONSULTANT（…）。合同第25条明确约定适用堪萨斯州法律，第33条约定争议提交仲裁…
+  缺口：建议争取将仲裁地改为中立城市或我方所在地，以降低异地维权的差旅与时间成本。
+  证据 1｜原文位置 19173-19265　按位置切原文 = 一致 ✅
+      │ This Agreement shall be governed and construed according to the laws of the State of Kansas.
+  证据 2｜原文位置 22752-23001　按位置切原文 = 一致 ✅
+      │ In the event a dispute arises under this Agreement which cannot be resolved, such dispute
+      │ shall be submitted to arbitration and resolved by a panel of three arbitrators …
+```
+
+> 这一步是刻意设计的：**不装 3GB 模型、不充 API 钱，也能看见系统在干什么**（`examples/README.md` 里写了三份样例各展示什么、
+> 以及它们**与金标准不一致的地方** —— 不挑"全对"的样例展示，是刻意的）。
+
+### 2.2 完整跑通（需要本地模型 + 一个 API key）
+
+```powershell
+# ① 依赖：**先单独装 torch（指定 CUDA 版本），再装其余** ——
+#    否则 torch 会被当间接依赖顺手升成别的 CUDA 版本（本项目踩过，环境被打散一次）
+pip install torch==2.11.0 --index-url https://download.pytorch.org/whl/cu128    # 仅 CPU 用 /whl/cpu
+pip install -r requirements.txt
+
+# ② 两个本地模型（约 2.5GB，bge 系列），下载后把路径填进 .env
+#      BAAI/bge-m3              → EMBED_MODEL_PATH
+#      BAAI/bge-reranker-v2-m3  → RERANK_MODEL_PATH
+#    国内可用镜像：set HF_ENDPOINT=https://hf-mirror.com
+huggingface-cli download BAAI/bge-m3 --local-dir <模型目录>\bge-m3
+huggingface-cli download BAAI/bge-reranker-v2-m3 --local-dir <模型目录>\bge-reranker-v2-m3
+
+# ③ 配置（.env 已被 gitignore；没有 .env 也能跑 2.1 与 --help，不会崩）
+Copy-Item .env.example .env
+
+# ④ 建向量库（本地 bge-m3，不需要联网）
 python -X utf8 scripts/build_index.py
 
-# ② 审查单份合同（--show-evidence 打印证据原文与字符位置）
+# ⑤ 审查单份合同（--show-evidence 打印证据原文与字符位置）
 python -X utf8 cli.py "LIMEENERGYCO_09_09_1999-EX-10-DISTRIBUTOR AGREEMENT" --show-evidence
 
-# ③ 批量评测（先自检，再跑；--resume 可续跑，中断不丢进度）
+# ⑥ 批量评测（先自检，再跑；--resume 可续跑，中断不丢进度）
 python -X utf8 run_eval.py --tag baseline
 #    并发版（工程增强 E1，推荐）：合同级 4 × 条款级 2；
 #    LLM 并发总闸由 .env 的 LLM_MAX_CONCURRENCY 控制（默认 6），调大这里不会突破它
 python -X utf8 run_eval.py --tag baseline --jobs 4 --clause-jobs 2
 
-# ④ 只度量检索层（零 LLM 调用，秒级）+ 判错自动归因（零 LLM 调用）
+# ⑦ 只度量检索层（零 LLM 调用，秒级）+ 判错自动归因（零 LLM 调用）
 python -X utf8 scripts/eval_retrieval.py --rerank --tag rerank_full
 python -X utf8 scripts/attribute_badcases.py --k 5
 ```
@@ -203,7 +257,10 @@ hetong/
 ├── cli.py                     # 单份审查 CLI
 ├── run_eval.py                # 批量评测与打分 ★
 ├── scripts/                   # 建索引、建评测集、检索层评测、归因、冒烟/限流探针、并发变异检验
-├── tests/                     # 单测：schemas 契约 + 并发正确性（并发那组全用桩对象，零 API 花费、可进 CI）
+├── tests/                     # 单测 19 个：schemas 契约 / 并发正确性 / config 环境容错（全用桩对象，零 API 花费）
+├── examples/                  # ★ 离线样例：3 份合同 + 报告 + show_report.py（0 依赖、不联网就能看输出）
+├── requirements.txt           # 依赖清单（含 torch 与 CUDA 版本匹配的坑）
+├── LICENSE                    # MIT（合同文本来自 CUAD / CC BY 4.0，不在 MIT 覆盖范围内）
 ├── eval/                      # 评测集 + 全部指标 JSON（前后对比的原始依据）★
 └── data/                      # 原始合同、向量库、报告（体积大，不进版本库）
 ```
@@ -218,3 +275,13 @@ hetong/
 | **P2′** | 补一个全量基线，以便与增强后的数字做严格同口径对比 | 全量耗时统计 | 约 5 元 |
 | P3 | 报告导出（Word/PDF）+ 人工复核界面（HITL） | 产品可用性 | 改代码 |
 | P4 | 换/换回更强的模型做对照（模型是第三个变量，必须与 baseline 同模型对比） | — | 按 token 计费 |
+
+## 11. 许可与致谢
+
+- **代码与文档**：[MIT](LICENSE)，Copyright (c) 2026 fengyeChris。
+- **合同文本**（`examples/contracts/`、`data/`）：来自
+  [CUAD — Contract Understanding Atticus Dataset](https://www.atticusprojectai.org/cuad)
+  （The Atticus Project），许可 **CC BY 4.0**，本项目按该许可署名再分发。
+  **MIT 许可不覆盖这些文本**。
+- 评测集只用 CUAD 的**官方纯文本**：PDF 转换版本的字符位置几乎全错（实测 14.1% 的标注无法定位），
+  用它会把"检索/模型的问题"和"数据的问题"混在一起。

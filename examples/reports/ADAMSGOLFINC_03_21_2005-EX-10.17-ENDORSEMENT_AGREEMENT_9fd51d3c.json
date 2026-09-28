@@ -1,0 +1,274 @@
+{
+  "contract_id": "ADAMSGOLFINC_03_21_2005-EX-10.17-ENDORSEMENT AGREEMENT",
+  "file_name": "ADAMSGOLFINC_03_21_2005-EX-10.17-ENDORSEMENT AGREEMENT.txt",
+  "reader_stance": "customer",
+  "findings": [
+    {
+      "clause_id": "01_governing_law",
+      "exists": true,
+      "risk_level": "medium",
+      "confidence": 0.95,
+      "evidence": [
+        {
+          "text": "This Agreement shall be governed and construed according to the laws of the State of Kansas.",
+          "char_start": 19173,
+          "char_end": 19265,
+          "section": null,
+          "matched_categories": [
+            "01_governing_law"
+          ]
+        },
+        {
+          "text": "In the event a dispute arises under this Agreement which cannot be resolved, such dispute shall be submitted to arbitration and resolved by a panel of three arbitrators (who shall be lawyers), in a decision required by a majority of the arbitrators.",
+          "char_start": 22752,
+          "char_end": 23001,
+          "section": null,
+          "matched_categories": [
+            "01_governing_law"
+          ]
+        },
+        {
+          "text": "The arbitration shall be conducted in accordance with the Arbitration Rules of the American Arbitration Association. Venue shall be Kansas.",
+          "char_start": 23183,
+          "char_end": 23322,
+          "section": null,
+          "matched_categories": [
+            "01_governing_law"
+          ]
+        }
+      ],
+      "reason_zh": "我方=CONSULTANT（顾问/被许可方，提供个人形象与代言服务并接收报酬的一方）。合同第25条明确约定适用堪萨斯州法律，第33条约定争议提交仲裁且地点为堪萨斯。虽然存在明确的争议解决机制，但管辖地完全位于对方（ADAMS GOLF）所在地或与其紧密关联的司法辖区，缺乏中立性，增加了我方的维权成本与不确定性，故判读为中风险。",
+      "gaps": [
+        "建议争取将仲裁地改为中立城市或我方所在地，以降低异地维权的差旅与时间成本。",
+        "确认仲裁费用分担条款是否缺失，若未约定由败诉方承担，可能增加我方启动程序的经济门槛。"
+      ]
+    },
+    {
+      "clause_id": "02_change_of_control",
+      "exists": true,
+      "risk_level": "high",
+      "confidence": 0.95,
+      "evidence": [
+        {
+          "text": "31. ASSIGNMENT AND CHANGE OF CONTROL",
+          "char_start": 21247,
+          "char_end": 21283,
+          "section": null,
+          "matched_categories": [
+            "02_change_of_control"
+          ]
+        },
+        {
+          "text": "Neither ADAMS GOLF nor CONSULTANT shall have the right to grant sublicenses hereunder or to assign, alienate or otherwise transfer any of its rights or obligations hereunder.",
+          "char_start": 21285,
+          "char_end": 21459,
+          "section": null,
+          "matched_categories": [
+            "02_change_of_control"
+          ]
+        }
+      ],
+      "reason_zh": "我方=CONSULTANT（顾问/服务提供方，接收ADAMS GOLF支付并履行推广义务的一方）。合同第31条标题为“ASSIGNMENT AND CHANGE OF CONTROL”，但正文仅规定双方均不得转让权利义务，未定义控制权变更的具体触发事件，也未赋予我方在对方发生控制权变更时的解约权、同意权或通知接收权。这意味着若ADAMS GOLF被收购，我方无法依据此条款终止合作或要求新主体重新确认关系，处于被动地位，风险高。",
+      "gaps": [
+        "缺少对‘控制权变更’具体情形的定义（如股权比例变化阈值）",
+        "缺少因控制权变更触发的单方解约权或重新谈判机制"
+      ]
+    },
+    {
+      "clause_id": "03_anti_assignment",
+      "exists": true,
+      "risk_level": "low",
+      "confidence": 0.95,
+      "evidence": [
+        {
+          "text": "Neither ADAMS GOLF nor CONSULTANT shall have the right to grant sublicenses hereunder or to assign, alienate or otherwise transfer any of its rights or obligations hereunder.",
+          "char_start": 21285,
+          "char_end": 21459,
+          "section": null,
+          "matched_categories": [
+            "03_anti_assignment"
+          ]
+        }
+      ],
+      "reason_zh": "我方=CONSULTANT（顾问/服务提供方，接收款项并履行推广义务的一方）。合同第31条明确规定双方均不得转让权利或义务，属于双向严格限制且无例外条款，对我方而言风险较低。",
+      "gaps": [
+        "未明确约定若发生公司合并、收购或控制权变更时的处理机制，虽禁止转让，但在极端商业变动下可能产生解释歧义。"
+      ]
+    },
+    {
+      "clause_id": "04_non_compete",
+      "exists": true,
+      "risk_level": "high",
+      "confidence": 0.95,
+      "evidence": [
+        {
+          "text": "During the term of this Agreement, unless otherwise authorized at the sole discretion of ADAMS GOLF in writing, CONSULTANT shall not:",
+          "char_start": 2512,
+          "char_end": 2645,
+          "section": null,
+          "matched_categories": [
+            "04_non_compete"
+          ]
+        },
+        {
+          "text": "A.give the right to use or permit the use of CONSULTANT'S name, facsimile signature, nickname, voice or likeness to any other manufacturer or seller of PRODUCT;",
+          "char_start": 2648,
+          "char_end": 2808,
+          "section": null,
+          "matched_categories": [
+            "04_non_compete"
+          ]
+        },
+        {
+          "text": "B.sponsor or endorse PRODUCT made or sold by any other manufacturer or seller; or",
+          "char_start": 2810,
+          "char_end": 2891,
+          "section": null,
+          "matched_categories": [
+            "04_non_compete"
+          ]
+        },
+        {
+          "text": "C.serve as a CONSULTANT or advisor of any other manufacturer or seller of PRODUCT.",
+          "char_start": 2893,
+          "char_end": 2975,
+          "section": null,
+          "matched_categories": [
+            "04_non_compete"
+          ]
+        },
+        {
+          "text": "\"CONTRACT TERRITORY\" shall mean the entire world.",
+          "char_start": 2137,
+          "char_end": 2186,
+          "section": null,
+          "matched_categories": [
+            "04_non_compete"
+          ]
+        }
+      ],
+      "reason_zh": "我方=CONSULTANT（顾问/代言人，提供个人形象与专业服务并获取报酬的一方）。合同第4条“EXCLUSIVITY OF ENDORSEMENT”及第6条明确限制我方在协议期内不得为其他制造商代言、推广或担任顾问，且第3段定义“CONTRACT TERRITORY”为全球范围。这种对特定主体从事竞争业务（包括代言、咨询等广义商业活动）的限制符合竞业限制特征。由于限制对象是我方，地域为全球，且文本中未显示针对该限制有额外的独立对价（通常包含在整体代言费中但此处显式强调排他性义务），风险判定为高。",
+      "gaps": [
+        "需确认合同中是否有关于提前终止或违反排他性条款的具体违约金计算方式，以评估实际财务风险敞口。",
+        "‘MANDATORY PRODUCT’的具体清单被部分遮蔽（redacted），需核实其覆盖范围是否过宽从而变相扩大竞业限制领域。"
+      ]
+    },
+    {
+      "clause_id": "05_exclusivity",
+      "exists": true,
+      "risk_level": "high",
+      "confidence": 0.95,
+      "evidence": [
+        {
+          "text": "During the term of this Agreement, CONSULTANT shall exclusively play/use the MANDATORY PRODUCT.",
+          "char_start": 4447,
+          "char_end": 4542,
+          "section": null,
+          "matched_categories": [
+            "05_exclusivity"
+          ]
+        },
+        {
+          "text": "CONSULTANT shall not:   A.give the right to use or permit the use of CONSULTANT'S name, facsimile signature, nickname, voice or likeness to any other manufacturer or seller of PRODUCT;",
+          "char_start": 2624,
+          "char_end": 2808,
+          "section": null,
+          "matched_categories": [
+            "05_exclusivity"
+          ]
+        },
+        {
+          "text": "B.sponsor or endorse PRODUCT made or sold by any other manufacturer or seller; or",
+          "char_start": 2810,
+          "char_end": 2891,
+          "section": null,
+          "matched_categories": [
+            "05_exclusivity"
+          ]
+        },
+        {
+          "text": "C.serve as a CONSULTANT or advisor of any other manufacturer or seller of PRODUCT.",
+          "char_start": 2893,
+          "char_end": 2975,
+          "section": null,
+          "matched_categories": [
+            "05_exclusivity"
+          ]
+        }
+      ],
+      "reason_zh": "我方=CONSULTANT（顾问/被许可方，提供个人形象授权并接收产品/服务的一方）。合同明确约定我方在协议期内必须独家使用指定产品（Section 5），且不得为其他制造商代言、赞助或担任顾问（Section 4），这构成了对我方的严格排他性绑定。文本中未显示对方有相应的供货保障、价格保护或明确的退出机制，仅规定对方拥有单方决定权（sole discretion）来豁免部分限制，因此风险等级判定为高。",
+      "gaps": [
+        "缺乏对等义务：未见ADAMS GOLF承诺保证产品供应数量、质量或提供具有竞争力的价格支持。",
+        "退出机制缺失：未明确若对方违约或停止生产时，我方可否解除独家限制。",
+        "补偿条款不明：未说明因独家限制导致我方无法接受其他品牌赞助时的经济补偿标准。"
+      ]
+    },
+    {
+      "clause_id": "06_termination_notice",
+      "exists": false,
+      "risk_level": "na",
+      "confidence": 0.95,
+      "evidence": [],
+      "reason_zh": "我方=CONSULTANT（TOM WATSON，提供代言服务并接收报酬的一方）。文本中仅包含因死亡/无法参赛的终止（第8条）、因违约的终止（第23条）以及因不当行为的立即终止（第12条片段），这些均属于特定事由或违约终止，不符合“任意终止权（for convenience）”的定义。未发现任何一方无需理由即可提前通知终止合同的条款。",
+      "gaps": [
+        "合同未约定任意终止权，双方必须履行至期满或发生特定违约/不可抗力事件才能解除，灵活性较低。"
+      ]
+    },
+    {
+      "clause_id": "07_renewal",
+      "exists": false,
+      "risk_level": "na",
+      "confidence": 0.95,
+      "evidence": [
+        {
+          "text": "The Term of this Agreement shall be for a period of [* ****] years and [*****] months commencing the 1st day of September 2004 and terminating the [*****] day of [*****].",
+          "char_start": 834,
+          "char_end": 1004,
+          "section": null,
+          "matched_categories": [
+            "07_renewal"
+          ]
+        }
+      ],
+      "reason_zh": "我方=CONSULTANT（TOM WATSON，提供代言服务并接收报酬的一方）。合同文本中仅在第1条约定了固定的合同期限（Term of Contract），未出现任何关于“自动续期”、“Renewal Term”或到期后自动延长有效期的条款。根据边界规则，仅有期限约定而无续期机制不算命中。",
+      "gaps": []
+    },
+    {
+      "clause_id": "08_cap_on_liability",
+      "exists": false,
+      "risk_level": "na",
+      "confidence": 0.95,
+      "evidence": [],
+      "reason_zh": "我方=CONSULTANT（顾问/代言人，提供代言服务并接收报酬的一方）。提供的合同片段中仅包含定义、义务、陈述保证及单向的赔偿条款（Indemnity），未出现任何关于“累计责任不超过某金额”或“一般性排除间接损失”的责任上限（Cap on Liability）约定。",
+      "gaps": [
+        "合同中缺失双向对等的责任上限条款，可能导致我方在违约时面临无限赔偿责任风险。",
+        "第14条仅规定了CONSULTANT对ADAMS GOLF的单向赔偿义务，缺乏对等保护或总责任封顶机制。"
+      ]
+    },
+    {
+      "clause_id": "09_liquidated_damages",
+      "exists": false,
+      "risk_level": "na",
+      "confidence": 0.95,
+      "evidence": [],
+      "reason_zh": "我方=ADAMS GOLF（支付费用并接收顾问服务的一方）。提供的合同片段中仅包含赔偿（Indemnity）、终止权、保密及一般法律条款，未出现任何关于“违约金”、“预定损害赔偿金额”或“计算公式”的约定。虽然存在因违约导致的赔偿责任描述，但缺乏事先约定的具体金额或计算方式，不符合命中标准。",
+      "gaps": [
+        "建议检查合同其他部分（如付款条款、交付时间表或特定KPI章节）是否隐藏了具体的延迟罚款或绩效扣款条款。"
+      ]
+    },
+    {
+      "clause_id": "10_ip_ownership",
+      "exists": false,
+      "risk_level": "na",
+      "confidence": 0.95,
+      "evidence": [],
+      "reason_zh": "我方=CONSULTANT（TOM WATSON，提供代言服务并接收报酬的一方）。合同文本中仅包含关于个人姓名、肖像等“背书权”的授权许可条款（License Grant），以及禁止转让本协议权利义务的通用条款，未出现任何关于知识产权归属、转让或所有权变更的约定动作。",
+      "gaps": []
+    }
+  ],
+  "missing_required_clauses": [
+    "08_cap_on_liability",
+    "10_ip_ownership"
+  ],
+  "summary_zh": "共检查 10 类条款：存在 5 类，缺失 5 类。其中必备条款缺失 2 类：08_cap_on_liability、10_ip_ownership。高风险 3 类：02_change_of_control、04_non_compete、05_exclusivity。"
+}
