@@ -27,6 +27,9 @@ const esc = (s) =>
 const pct = (v, digits = 1) =>
   v === null || v === undefined || Number.isNaN(v) ? "—" : (v * 100).toFixed(digits) + "%";
 
+// 界面用语统一：自动生成的文档里写的是"金标准"，界面上统一叫"标准答案"（同一个意思，后者更好懂）
+const plain = (s) => esc(String(s)).replace(/金标准/g, "标准答案");
+
 const num = (v, digits = 3) =>
   v === null || v === undefined || Number.isNaN(v) ? "—" : Number(v).toFixed(digits);
 
@@ -84,20 +87,6 @@ function renderSummary() {
     <div class="summary-cell"><span class="k">合同长度</span><span class="v">${chars.toLocaleString()}<small> 字符</small></span></div>
     <div class="summary-note">${esc(state.report.report.summary_zh || "")}</div>`;
 }
-
-function renderDiffBadge() {
-  const diff = state.diff || [];
-  const bad = diff.filter((d) => !d.match);
-  const same = diff.length - bad.length;
-  const detail = bad.length
-    ? bad.map((d) => `${d.clause_id.slice(0, 2)} ${d.kind}`).join("、")
-    : "全部一致";
-  $("diff-badge").innerHTML =
-    `<span class="chip num" title="与 CUAD 金标准逐类对照：${esc(detail)}">` +
-    `与金标准一致 ${same}/${diff.length}</span>` +
-    (bad.length ? `<span class="chip" style="color:var(--high)">${bad.length} 处不一致</span>` : "");
-}
-
 function visibleFindings() {
   const all = state.report.report.findings;
   if (state.filter === "exists") return all.filter((f) => f.exists);
@@ -135,12 +124,6 @@ function renderClauseDetail() {
     return;
   }
   const t = state.titles[f.clause_id] || {};
-  const diff = state.diff.find((d) => d.clause_id === f.clause_id);
-  const diffChip = diff
-    ? diff.match
-      ? `<span class="chip ok">与金标准一致</span>`
-      : `<span class="chip" style="color:var(--high);border-color:rgba(142,47,28,.3)">与金标准不一致（${diff.kind}）</span>`
-    : "";
 
   const gaps = (f.gaps || []).length
     ? `<div class="detail-section"><span class="section-label">缺口 / 建议</span><ul class="gap-list">${f.gaps
@@ -168,7 +151,6 @@ function renderClauseDetail() {
         ${f.exists ? `<span class="chip">风险 ${RISK_ZH[f.risk_level] || f.risk_level} ${riskSwatch(f.risk_level)}</span>` : ""}
         <span class="chip num">置信度 ${f.confidence.toFixed(2)}</span>
         <span class="chip num">${f.clause_id}</span>
-        ${diffChip}
       </div>
     </div>
     <div class="detail-section"><span class="section-label">判定理由</span><p class="reason">${esc(f.reason_zh)}</p></div>
@@ -339,7 +321,7 @@ function renderEvaluation() {
   $("eval-body").innerHTML = `
     <section class="eval-section">
       <h3 class="eval-title">全量结果</h3>
-      <p class="eval-desc">${esc(String(cfg.contracts ?? 198))} 份 CUAD 官方文本 · 模型 ${esc(cfg.model || "")} · top-k ${esc(cfg.top_k ?? 5)} · 切块 ${esc(cfg.chunk_size || "")}/${esc(cfg.chunk_overlap || "")} · 立场 ${esc(cfg.reader_stance || "customer")}</p>
+      <p class="eval-desc">${esc(String(cfg.contracts ?? 198))} 份合同 · ${esc(cfg.model || "")}</p>
       <div class="metrics-row">
         ${metricBlock("存在性 F1", num(micro.f1, 3), `精确率 ${num(micro.precision, 3)} ｜ 召回率 ${num(micro.recall, 3)} ｜ 宏平均 ${num(macro.f1, 3)}`)}
         ${metricBlock("证据定位准确率", num(o.evidence_accuracy, 3), `${o.evidence_hit ?? "—"} / ${o.evidence_total ?? "—"} 条有标准答案的条款，证据位置与标准答案重叠`)}
@@ -396,7 +378,7 @@ function renderAttribution() {
         (r) =>
           `<tr><td>${esc(r.contract.slice(0, 42))}</td><td>${esc(r.clause.slice(0, 22))}</td>` +
           `<td><span class="layer-tag ${esc(r.layer)}">${esc(r.layer)}</span></td>` +
-          `<td style="text-align:left;color:var(--ink-2)">${esc(r.note.slice(0, 96))}</td></tr>`
+          `<td style="text-align:left;color:var(--ink-2)">${plain(r.note.slice(0, 96))}</td></tr>`
       )
       .join("");
 
@@ -425,7 +407,7 @@ function renderAttribution() {
       a.known_gaps?.length
         ? `<div style="margin-top:32px"><span class="section-label">已知口径落差</span>
            <table class="grid"><thead><tr><th>条款</th><th>说明</th></tr></thead><tbody>${a.known_gaps
-             .map((g) => `<tr><td>${esc(g.clause)}</td><td style="text-align:left;color:var(--ink-2)">${esc(g.desc)}</td></tr>`)
+             .map((g) => `<tr><td>${esc(g.clause)}</td><td style="text-align:left;color:var(--ink-2)">${plain(g.desc)}</td></tr>`)
              .join("")}</tbody></table></div>`
         : ""
     }`;
@@ -440,13 +422,13 @@ async function loadSample(sampleId) {
   state.report = data;
   state.text = data.text || "";
   state.titles = data.clause_titles || {};
+  // 与服务端金标准的逐类对照：报告页不展示（保留数据，评测页/后续对答案可用）
   state.diff = data.eval_diff || [];
   state.selected = data.report.findings[0]?.clause_id || null;
 
   $("source-title").textContent = `合同原文 · ${data.report.file_name}`;
   renderSampleSelect();
   renderSummary();
-  renderDiffBadge();
   renderClauseList();
   renderClauseDetail();
   renderDocument();

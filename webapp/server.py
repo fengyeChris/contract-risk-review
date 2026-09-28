@@ -245,7 +245,13 @@ def api_attribution() -> dict:
                 continue
             if started and len(head) >= 4:
                 rows.append(
-                    {"contract": head[0], "clause": head[1], "layer": head[2], "note": head[3]}
+                    {
+                        "contract": head[0],
+                        "clause": head[1],
+                        "layer": head[2],
+                        # 摘要原文是 markdown（如 `**未召回**（…）`）：界面要的是纯文本，去掉强调标记
+                        "note": head[3].replace("**", ""),
+                    }
                 )
         return rows
 
