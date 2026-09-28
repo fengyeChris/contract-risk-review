@@ -71,9 +71,18 @@ python -X utf8 examples/show_report.py --evidence
 > 这一步是刻意设计的：**不装 3GB 模型、不充 API 钱，也能看见系统在干什么**（`examples/README.md` 里写了三份样例各展示什么、
 > 以及它们**与金标准不一致的地方** —— 不挑"全对"的样例展示，是刻意的）。
 
-### 2.2 完整跑通（需要本地模型 + 一个 API key）
+### 2.2 完整跑通（需要数据集 + 本地模型 + 一个 API key）
 
 ```powershell
+# ⓪ 数据集：CUAD **不会自动下载**，要自备（data/ 体积大，不进版本库）
+#    官方仓库（NeurIPS 2021，CC BY 4.0）：https://github.com/TheAtticusProject/cuad
+#    按下面的路径放好两个东西后，跑 build_dataset 生成评测集：
+#      CUAD_v1.json        →  data/cuad/CUAD_v1.json         （510 份合同 × 41 类标注）
+#      full_contract_txt/  →  data/cuad/full_contract_txt/   （510 份纯文本）
+python -X utf8 scripts/build_dataset.py     # 生成 eval/golden_eval.jsonl
+#    注：主评测集 eval/golden_eval.jsonl 已随仓库提供，只想看输出/跑评测可以跳过这一步；
+#        但要跑 build_index / cli（需要向量库）就必须先有合同原文。
+
 # ① 依赖：**先单独装 torch（指定 CUDA 版本），再装其余** ——
 #    否则 torch 会被当间接依赖顺手升成别的 CUDA 版本（本项目踩过，环境被打散一次）
 pip install torch==2.11.0 --index-url https://download.pytorch.org/whl/cu128    # 仅 CPU 用 /whl/cpu
@@ -280,8 +289,8 @@ hetong/
 
 - **代码与文档**：[MIT](LICENSE)，Copyright (c) 2026 fengyeChris。
 - **合同文本**（`examples/contracts/`、`data/`）：来自
-  [CUAD — Contract Understanding Atticus Dataset](https://www.atticusprojectai.org/cuad)
-  （The Atticus Project），许可 **CC BY 4.0**，本项目按该许可署名再分发。
+  [CUAD — Contract Understanding Atticus Dataset](https://github.com/TheAtticusProject/cuad)
+  （The Atticus Project，NeurIPS 2021），许可 **CC BY 4.0**，本项目按该许可署名再分发。
   **MIT 许可不覆盖这些文本**。
 - 评测集只用 CUAD 的**官方纯文本**：PDF 转换版本的字符位置几乎全错（实测 14.1% 的标注无法定位），
   用它会把"检索/模型的问题"和"数据的问题"混在一起。
