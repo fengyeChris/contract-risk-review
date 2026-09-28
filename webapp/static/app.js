@@ -158,7 +158,7 @@ function renderClauseDetail() {
             `</div><p class="evidence-quote">${esc(e.text)}</p></div>`
         )
         .join("")}</div>`
-    : `<div class="detail-section"><span class="section-label">原文证据</span><p class="empty">本类未给出证据（判为不存在，或引用无法在检索片段中定位 —— 后者会被自动压低置信度）。</p></div>`;
+    : `<div class="detail-section"><span class="section-label">原文证据</span><p class="empty">本类未给出证据。</p></div>`;
 
   $("clause-detail").innerHTML = `
     <div class="detail-head">
@@ -339,12 +339,12 @@ function renderEvaluation() {
   $("eval-body").innerHTML = `
     <section class="eval-section">
       <h3 class="eval-title">全量结果</h3>
-      <p class="eval-desc">${esc(String(cfg.contracts ?? 198))} 份 CUAD 官方文本 · 模型 ${esc(cfg.model || "")} · top-k ${esc(cfg.top_k ?? 5)} · 切块 ${esc(cfg.chunk_size || "")}/${esc(cfg.chunk_overlap || "")} · 立场 ${esc(cfg.reader_stance || "customer")} · 数据文件 ${esc(d.final.file)}</p>
+      <p class="eval-desc">${esc(String(cfg.contracts ?? 198))} 份 CUAD 官方文本 · 模型 ${esc(cfg.model || "")} · top-k ${esc(cfg.top_k ?? 5)} · 切块 ${esc(cfg.chunk_size || "")}/${esc(cfg.chunk_overlap || "")} · 立场 ${esc(cfg.reader_stance || "customer")}</p>
       <div class="metrics-row">
-        ${metricBlock("存在性 F1（微平均）", num(micro.f1, 3), `精确率 ${num(micro.precision, 3)} ｜ 召回率 ${num(micro.recall, 3)} ｜ 宏平均 ${num(macro.f1, 3)}`)}
-        ${metricBlock("证据定位准确率", num(o.evidence_accuracy, 3), `${o.evidence_hit ?? "—"} / ${o.evidence_total ?? "—"} 条阳性 case 的证据与金标准区间重叠`)}
-        ${metricBlock("必备条款缺失识别", num(o.required_missing_recall, 3), "金标准为「不存在」的 01 / 08 / 10 中，系统也判缺失的比例")}
-        ${metricBlock("剔除项", String(o.excluded_pipeline_errors ?? 0), "被标记 [PIPELINE_ERROR] 的判定一律剔除，不混进分数")}
+        ${metricBlock("存在性 F1", num(micro.f1, 3), `精确率 ${num(micro.precision, 3)} ｜ 召回率 ${num(micro.recall, 3)} ｜ 宏平均 ${num(macro.f1, 3)}`)}
+        ${metricBlock("证据定位准确率", num(o.evidence_accuracy, 3), `${o.evidence_hit ?? "—"} / ${o.evidence_total ?? "—"} 条有标准答案的条款，证据位置与标准答案重叠`)}
+        ${metricBlock("必备条款缺失识别", num(o.required_missing_recall, 3), "01 / 08 / 10 三类必备条款应判缺失时，系统判缺失的比例")}
+        ${metricBlock("漏报 / 误报", `${micro.fn ?? "—"} / ${micro.fp ?? "—"}`, "标准答案有而漏判 / 标准答案无而误报")}
       </div>
       <table class="grid">
         <thead><tr><th>条款</th><th>TP / FP / FN</th><th>精确率</th><th>召回率</th><th>F1</th><th>证据定位</th></tr></thead>
@@ -354,7 +354,7 @@ function renderEvaluation() {
 
     <section class="eval-section">
       <h3 class="eval-title">两项增强的前后对比</h3>
-      <p class="eval-desc">同一批 30 份合同、同一模型，**唯一变量是增强开关**（做 A/B 时报告目录必须分开，否则 <code>--resume</code> 会把两组报告混读）。</p>
+      <p class="eval-desc">同一批 30 份合同、同一模型，每次只改变一项。</p>
       <table class="grid">
         <thead><tr><th>指标</th>${abHead}</tr></thead>
         <tbody>
@@ -368,8 +368,8 @@ function renderEvaluation() {
     </section>
 
     <section class="eval-section">
-      <h3 class="eval-title">检索层（不依赖 LLM，零成本可复算）</h3>
-      <p class="eval-desc">分子分母 = 有金标准证据的条款查询；只要证据落在前 k 个片段内即算命中。向量粗召 top-20 后用 cross-encoder 精排，喂给模型的段数不变（prompt 不膨胀）。</p>
+      <h3 class="eval-title">检索质量</h3>
+      <p class="eval-desc">命中 = 该条款的标准答案证据出现在检索结果的前 k 段内。先用向量粗召 20 段，再用精排模型取前 5 段。</p>
       <table class="grid">
         <thead><tr><th>指标</th>${retHead}</tr></thead>
         <tbody>${retRows}</tbody>
@@ -386,7 +386,7 @@ function renderAttribution() {
   const box = $("eval-attribution");
   if (!box) return;
   if (!a || !a.available) {
-    box.innerHTML = `<h3 class="eval-title">判错归因</h3><p class="eval-desc">未找到 badcase_attribution.md，运行 scripts/attribute_badcases.py 生成。</p>`;
+    box.innerHTML = `<h3 class="eval-title">判错归因</h3><p class="eval-desc">暂无归因数据。</p>`;
     return;
   }
   const cases = (rows) =>
@@ -401,11 +401,10 @@ function renderAttribution() {
       .join("");
 
   box.innerHTML = `
-    <h3 class="eval-title">判错归因（自动生成，零 LLM 调用）</h3>
-    <p class="eval-desc">扫描 ${a.scanned} 条判定，判错 ${a.wrong} 条。归因只允许五选一（管线层 / 检索层 / 模型层 / 标准层 / 数据层）——
-      因为"归因错了，就会去修错的东西"。</p>
+    <h3 class="eval-title">判错归因</h3>
+    <p class="eval-desc">扫描 ${a.scanned} 条判定，判错 ${a.wrong} 条，按根因分层。</p>
     <div class="metrics-row">
-      ${metricBlock("漏报 · 检索层", String(a.fn["检索层"]), "金标准证据根本没被召回 —— 修检索，不是修模型")}
+      ${metricBlock("漏报 · 检索层", String(a.fn["检索层"]), "标准答案里的证据没有被检索到")}
       ${metricBlock("漏报 · 模型层", String(a.fn["模型层"]), "证据已召回，模型仍判不存在")}
       ${metricBlock("误报 · 口径落差", String(a.fp["口径落差"]), "我们的定义与 CUAD 标注口径不一致")}
       ${metricBlock("误报 · 待人工判定", String(a.fp["待人工判定"]), "需人工看原文定夺")}
@@ -467,8 +466,7 @@ async function init() {
   const cfg = evaluation.final.config || {};
   $("footnote").innerHTML =
     `数据：CUAD（Contract Understanding Atticus Dataset，The Atticus Project，CC BY 4.0）中的官方纯文本；` +
-    `审查参数：${esc(cfg.model || "")} / temperature 0 / 重排 bge-reranker-v2-m3（粗召 20 → 精排取 ${esc(cfg.top_k ?? 5)}）/ 切块 ${esc(cfg.chunk_size || "")}-${esc(cfg.chunk_overlap || "")} / 立场 customer。<br>` +
-    `本页展示的是**离线缓存的真实报告**（不调用模型、不消耗 API）；证据的字符位置由程序在检索片段中查找计算，不是模型生成的。`;
+    `审查参数：${esc(cfg.model || "")} / temperature 0 / 重排 bge-reranker-v2-m3（粗召 20 → 精排取 ${esc(cfg.top_k ?? 5)}）/ 切块 ${esc(cfg.chunk_size || "")}-${esc(cfg.chunk_overlap || "")} / 立场 customer。`;
 
   await loadSample(samples[0].id);
   renderEvaluation();
